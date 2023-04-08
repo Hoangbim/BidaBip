@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/BidaBip/static/css/main.073c9b0a.css",
-    "main.js": "/BidaBip/static/js/main.115cce75.js",
+    "main.js": "/BidaBip/static/js/main.5732764b.js",
     "index.html": "/BidaBip/index.html",
     "main.073c9b0a.css.map": "/BidaBip/static/css/main.073c9b0a.css.map",
-    "main.115cce75.js.map": "/BidaBip/static/js/main.115cce75.js.map"
+    "main.5732764b.js.map": "/BidaBip/static/js/main.5732764b.js.map"
   },
   "entrypoints": [
     "static/css/main.073c9b0a.css",
-    "static/js/main.115cce75.js"
+    "static/js/main.5732764b.js"
   ]
 }
