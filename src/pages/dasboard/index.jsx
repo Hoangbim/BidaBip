@@ -1,20 +1,37 @@
 import React, { useEffect, useState } from "react";
-import { Button, Popconfirm, Row, Tag, Col, InputNumber, Table } from "antd";
+import {
+  Button,
+  Popconfirm,
+  Row,
+  Tag,
+  Col,
+  InputNumber,
+  Table,
+  Divider,
+} from "antd";
 import Title from "antd/es/typography/Title";
 import { EuroOutlined } from "@ant-design/icons";
-import { getTableInfo, saveTableInfo } from "../../hooks/useHttp";
-import { useParams } from "react-router-dom";
+import {
+  getTableInfo,
+  getUserInfo,
+  handleError,
+  saveTableInfo,
+} from "../../hooks/useHttp";
+import { useNavigate, useParams } from "react-router-dom";
 
 export const baseUrl = "http://206.189.47.104:3000";
 
 function DashBoard() {
-  const { id } = useParams();
+  const navigate = useNavigate();
   const [tableData, setTableData] = useState();
   const [tableId, setTableId] = useState();
   const [amount, setAmount] = useState();
 
   let currentUser;
 
+  useEffect(() => {
+    currentUser = getUserInfo();
+  });
   const onAmountChange = (e) => {
     setAmount(e);
   };
@@ -65,37 +82,46 @@ function DashBoard() {
       title: "Action",
       dataIndex: "action",
       key: "action",
-      render: (_, record) => (
-        <Popconfirm
-          placement="topLeft"
-          title="Pay"
-          onConfirm={async () => {
-            const res = await fetch(
-              `${baseUrl}/tables/${tableId}/players/${currentUser}`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: {
-                  amount,
-                  toPlayerId: id,
-                },
+      render: (_, record) => {
+        return (
+          <Popconfirm
+            placement="topLeft"
+            title="Pay"
+            onConfirm={async () => {
+              try {
+                const res = await fetch(
+                  `${baseUrl}/tables/${tableId}/players/${currentUser}/transfer`,
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      amount: amount,
+                      toPlayerId: record.id,
+                    }),
+                  }
+                );
+                if (res.status === 200) {
+                  fetchTableData();
+                }
+              } catch (error) {
+                handleError(error);
               }
-            );
-          }}
-          okText="ok"
-          cancelText="Cancel"
-        >
-          <Button
-            icon={<EuroOutlined style={{ color: "orange" }} />}
-            size="large"
-            type="primary"
+            }}
+            okText="ok"
+            cancelText="Cancel"
           >
-            PAY
-          </Button>
-        </Popconfirm>
-      ),
+            <Button
+              icon={<EuroOutlined style={{ color: "orange" }} />}
+              size="large"
+              type="primary"
+            >
+              PAY
+            </Button>
+          </Popconfirm>
+        );
+      },
     },
   ];
 
@@ -104,8 +130,12 @@ function DashBoard() {
       <Title level={3} style={{ alignSelf: "center" }}>
         Bảng ghi nợ
       </Title>
-      <Row justify={"center"}>
-        <Col span={8}>
+      <Title level={5} style={{ alignSelf: "center" }}>
+        Table ID: {tableId}
+      </Title>
+      <Divider />
+      <Row justify={"left"}>
+        <Col span={12} offset={6}>
           <InputNumber
             placeholder="Enter the loss amount"
             style={{ marginBottom: "20px", width: "200px" }}
@@ -117,6 +147,17 @@ function DashBoard() {
       </Row>
 
       <Table dataSource={tableData} columns={columns}></Table>
+
+      <Button
+        size="large"
+        type="primary"
+        onClick={() => {
+          localStorage.clear();
+          navigate("/");
+        }}
+      >
+        Log Out!
+      </Button>
     </div>
   );
 }

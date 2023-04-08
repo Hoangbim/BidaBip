@@ -2,11 +2,17 @@ import { Button, Col, Input, Row, Divider, notification } from "antd";
 import React, { useState } from "react";
 import { baseUrl } from "../dasboard";
 import { useNavigate } from "react-router-dom";
-import { getTableInfo, handleError, saveTableInfo } from "../../hooks/useHttp";
+import {
+  getTableInfo,
+  handleError,
+  saveTableInfo,
+  saveUserInfo,
+} from "../../hooks/useHttp";
 
 function LoginPage() {
   const [userName, setUserName] = useState("");
   const [tableName, setTableName] = useState("");
+  const [inputTableId, setInputTableId] = useState();
   const navigate = useNavigate();
 
   const onUserNameChange = (e) => {
@@ -14,7 +20,7 @@ function LoginPage() {
   };
 
   const joinTableHandler = async () => {
-    const tableId = getTableInfo();
+    const tableId = tableName ? tableName : inputTableId;
     try {
       const res = await fetch(
         `${baseUrl}/tables/${tableId}/players/${userName}`,
@@ -25,6 +31,8 @@ function LoginPage() {
     } catch (e) {
       handleError(e);
     }
+    saveUserInfo(userName);
+
     navigate(`${userName}`);
   };
 
@@ -64,16 +72,23 @@ function LoginPage() {
 
             {tableName && (
               <Col span={24} style={{ marginBottom: 16 }}>
-                {tableName}
+                Table ID: <h3>{tableName}</h3>
               </Col>
             )}
 
             <Col span={24}>
               <Divider />
             </Col>
-            {/* <Col span={24} style={{ marginBottom: 16 }}>
-              <Input size="large" placeholder="Table Id"></Input>
-            </Col> */}
+            <Col span={24} style={{ marginBottom: 16 }}>
+              <Input
+                size="large"
+                placeholder="Table Id"
+                value={inputTableId}
+                onChange={(e) => {
+                  setInputTableId(e.target.value);
+                }}
+              ></Input>
+            </Col>
             <Col span={24} style={{ marginBottom: 16 }}>
               <Button size="large" type="primary" onClick={joinTableHandler}>
                 JOIN TABLE
