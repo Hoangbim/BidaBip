@@ -1,8 +1,8 @@
-import { Button, Col, Input, Row, Divider, notification } from "antd";
+import { Button, Col, Input, Row, Divider } from "antd";
 import React, { useState } from "react";
 import { baseUrl } from "../dasboard";
 import { useNavigate } from "react-router-dom";
-import {
+import useHttp, {
   getTableInfo,
   handleError,
   saveTableInfo,
@@ -12,15 +12,17 @@ import {
 function LoginPage() {
   const [userName, setUserName] = useState("");
   const [tableName, setTableName] = useState("");
-  const [inputTableId, setInputTableId] = useState();
+  const [inputTableId, setInputTableId] = useState("");
   const navigate = useNavigate();
+
+  const { isLoading, error, sendRequest } = useHttp();
 
   const onUserNameChange = (e) => {
     setUserName(e.target.value);
   };
 
-  const joinTableHandler = async () => {
-    const tableId = tableName ? tableName : inputTableId;
+  const joinTableHandler = async (tableId) => {
+    // const tableId = tableName ? tableName : inputTableId;
     try {
       const res = await fetch(
         `${baseUrl}/tables/${tableId}/players/${userName}`,
@@ -28,12 +30,29 @@ function LoginPage() {
           method: "POST",
         }
       );
+
+      if (res.status === 200) {
+        saveUserInfo(userName);
+        saveTableInfo(tableId);
+        navigate(`${tableId}`);
+      }
     } catch (e) {
       handleError(e);
     }
-    saveUserInfo(userName);
 
-    navigate(`${userName}`);
+    // const requestConfig = {
+    //   url: `${baseUrl}/tables/${tableId}/players/${userName}`,
+    //   method: "POST",
+    // };
+
+    // sendRequest(requestConfig, (data) => {
+    //   if (data) {
+    //     saveUserInfo(userName);
+    //     navigate(`${userName}`);
+    //   }
+    //   saveUserInfo(userName);
+    //   navigate(`${userName}`);
+    // });
   };
 
   const onCreateTable = async () => {
@@ -41,11 +60,11 @@ function LoginPage() {
       const res = await fetch(`${baseUrl}/tables/bip01`, {
         method: "POST",
       });
-
       const data = await res.json();
-      console.log("tableId:", data);
-      saveTableInfo(data.id);
-      setTableName(data.id);
+      if (data) {
+        joinTableHandler(data.id);
+      }
+      // setTableName(data.id);
     } catch (e) {
       handleError(e);
     }
@@ -90,7 +109,13 @@ function LoginPage() {
               ></Input>
             </Col>
             <Col span={24} style={{ marginBottom: 16 }}>
-              <Button size="large" type="primary" onClick={joinTableHandler}>
+              <Button
+                size="large"
+                type="primary"
+                onClick={() => {
+                  joinTableHandler(inputTableId);
+                }}
+              >
                 JOIN TABLE
               </Button>
             </Col>

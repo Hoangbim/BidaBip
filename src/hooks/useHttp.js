@@ -35,7 +35,7 @@ const useHttp = () => {
       applyData(data);
     } catch (err) {
       //thông báo lỗi quá trình fetch
-      handleError(err);
+      setError(err);
     }
     //đặt lại Isloading là false khi quá trình fetch xong
     setIsLoading(false);

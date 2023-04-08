@@ -26,6 +26,9 @@ function DashBoard() {
   const [tableData, setTableData] = useState();
   const [tableId, setTableId] = useState();
   const [amount, setAmount] = useState();
+  const tId = getTableInfo();
+
+  console.log("tId", tId);
 
   let currentUser;
 
@@ -37,7 +40,6 @@ function DashBoard() {
   };
 
   const fetchTableData = async () => {
-    const tId = getTableInfo();
     const res = await fetch(`${baseUrl}/tables/${tId}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
@@ -103,6 +105,7 @@ function DashBoard() {
                   }
                 );
                 if (res.status === 200) {
+                  setAmount(0);
                   fetchTableData();
                 }
               } catch (error) {

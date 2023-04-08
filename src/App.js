@@ -17,12 +17,12 @@ function App() {
       errorElement: <ErrorPage />,
       children: [
         {
-          path: "/:id",
-          element: <DashBoard />,
-        },
-        {
           path: "/",
           element: <LoginPage />,
+        },
+        {
+          path: "/:id",
+          element: <DashBoard />,
         },
       ],
     },
