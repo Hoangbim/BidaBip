@@ -1,7 +1,7 @@
 import { Button, Dropdown, Layout, Space, theme } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import { Header } from "antd/es/layout/layout";
-import { useSelector } from "react-redux";
+
 const items = [
   {
     key: "1",
@@ -14,7 +14,6 @@ const items = [
 ];
 
 const HeaderComponent = () => {
-  const userName = useSelector((state) => state.users.name);
   const {
     token: { colorBgContainer },
   } = theme.useToken();

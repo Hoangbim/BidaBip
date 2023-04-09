@@ -13,7 +13,7 @@ function Layout() {
           textAlign: "center",
         }}
       >
-        Bida Bip
+        BIDA BIP
       </Footer>
     </div>
   );

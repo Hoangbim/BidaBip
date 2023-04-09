@@ -15,14 +15,11 @@ function LoginPage() {
   const [inputTableId, setInputTableId] = useState("");
   const navigate = useNavigate();
 
-  const { isLoading, error, sendRequest } = useHttp();
-
   const onUserNameChange = (e) => {
     setUserName(e.target.value);
   };
 
   const joinTableHandler = async (tableId) => {
-    // const tableId = tableName ? tableName : inputTableId;
     try {
       const res = await fetch(
         `${baseUrl}/tables/${tableId}/players/${userName}`,
@@ -30,7 +27,6 @@ function LoginPage() {
           method: "POST",
         }
       );
-
       if (res.status === 200) {
         saveUserInfo(userName);
         saveTableInfo(tableId);
@@ -39,20 +35,6 @@ function LoginPage() {
     } catch (e) {
       handleError(e);
     }
-
-    // const requestConfig = {
-    //   url: `${baseUrl}/tables/${tableId}/players/${userName}`,
-    //   method: "POST",
-    // };
-
-    // sendRequest(requestConfig, (data) => {
-    //   if (data) {
-    //     saveUserInfo(userName);
-    //     navigate(`${userName}`);
-    //   }
-    //   saveUserInfo(userName);
-    //   navigate(`${userName}`);
-    // });
   };
 
   const onCreateTable = async () => {

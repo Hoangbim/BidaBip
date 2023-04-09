@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import {
   Button,
-  Popconfirm,
   Row,
   Tag,
   Col,
   InputNumber,
   Table,
-  Divider,
+  Typography,
+  notification,
+  Modal,
 } from "antd";
 import Title from "antd/es/typography/Title";
 import { EuroOutlined } from "@ant-design/icons";
@@ -19,7 +20,8 @@ import {
 } from "../../hooks/useHttp";
 import { useNavigate, useParams } from "react-router-dom";
 
-export const baseUrl = "http://206.189.47.104:3000";
+// export const baseUrl = "http://206.189.47.104:3000";
+export const baseUrl = "https://biabip.ntbinh.me";
 
 function DashBoard() {
   const navigate = useNavigate();
@@ -27,16 +29,17 @@ function DashBoard() {
   const [tableId, setTableId] = useState();
   const [amount, setAmount] = useState();
   const tId = getTableInfo();
-
-  console.log("tId", tId);
-
-  let currentUser;
-
+  const currentUser = getUserInfo();
+  const [modal1Open, setModal1Open] = useState(false);
+  const [modalData, setModalData] = useState("");
   useEffect(() => {
-    currentUser = getUserInfo();
-  });
+    if (!tId || !currentUser) {
+      navigate("/");
+    }
+  }, [tId, currentUser]);
+
   const onAmountChange = (e) => {
-    setAmount(e);
+    setAmount(Math.abs(e));
   };
 
   const fetchTableData = async () => {
@@ -49,7 +52,7 @@ function DashBoard() {
 
     if (data) {
       setTableId(data.id);
-      saveTableInfo(data.id);
+      // saveTableInfo(data.id);
       const players = Object.keys(data.players).map(
         (item) => data.players[item]
       );
@@ -86,43 +89,17 @@ function DashBoard() {
       key: "action",
       render: (_, record) => {
         return (
-          <Popconfirm
-            placement="topLeft"
-            title="Pay"
-            onConfirm={async () => {
-              try {
-                const res = await fetch(
-                  `${baseUrl}/tables/${tableId}/players/${currentUser}/transfer`,
-                  {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                      amount: amount,
-                      toPlayerId: record.id,
-                    }),
-                  }
-                );
-                if (res.status === 200) {
-                  setAmount(0);
-                  fetchTableData();
-                }
-              } catch (error) {
-                handleError(error);
-              }
+          <Button
+            icon={<EuroOutlined style={{ color: "orange" }} />}
+            type="primary"
+            size="large"
+            onClick={() => {
+              setModalData(record);
+              return setModal1Open(true);
             }}
-            okText="ok"
-            cancelText="Cancel"
           >
-            <Button
-              icon={<EuroOutlined style={{ color: "orange" }} />}
-              size="large"
-              type="primary"
-            >
-              PAY
-            </Button>
-          </Popconfirm>
+            PAY
+          </Button>
         );
       },
     },
@@ -131,23 +108,12 @@ function DashBoard() {
   return (
     <div style={{ padding: "50px 16px" }}>
       <Title level={3} style={{ alignSelf: "center" }}>
-        Bảng ghi nợ
+        SCOREBOARD
       </Title>
-      <Title level={5} style={{ alignSelf: "center" }}>
-        Table ID: {tableId}
+      <Title level={4} style={{ alignSelf: "center" }}>
+        Table ID:
+        <Typography.Paragraph copyable>{tableId}</Typography.Paragraph>
       </Title>
-      <Divider />
-      <Row justify={"left"}>
-        <Col span={12} offset={6}>
-          <InputNumber
-            placeholder="Enter the loss amount"
-            style={{ marginBottom: "20px", width: "200px" }}
-            size="large"
-            value={amount}
-            onChange={onAmountChange}
-          />
-        </Col>
-      </Row>
 
       <Table dataSource={tableData} columns={columns}></Table>
 
@@ -161,6 +127,69 @@ function DashBoard() {
       >
         Log Out!
       </Button>
+
+      {/* -------------------------------------modal---------------- */}
+      <Modal
+        title={`Transfer to ${modalData.id}`}
+        // style={{ top: 20 }}
+        centered
+        open={modal1Open}
+        onOk={async () => {
+          try {
+            const res = await fetch(
+              `${baseUrl}/tables/${tableId}/players/${currentUser}/transfer`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  amount: amount,
+                  toPlayerId: modalData?.id,
+                }),
+              }
+            );
+            if (res.status === 400) {
+              const data = await res.json();
+              const errMess = data.message;
+              console.log("errMess", errMess);
+              notification.error({
+                message: errMess,
+                placement: "top",
+              });
+            }
+            if (res.status === 200) {
+              const message = `Đã chuyển ${amount} cho ${modalData?.id}`;
+
+              notification.success({
+                message: message,
+                placement: "top",
+              });
+              setModal1Open(false);
+              setAmount("");
+              fetchTableData();
+            }
+          } catch (error) {
+            handleError(error);
+          }
+        }}
+        onCancel={() => {
+          setAmount("");
+          setModal1Open(false);
+        }}
+      >
+        <Row>
+          <Col span={12} offset={6}>
+            <InputNumber
+              placeholder="Enter the loss amount"
+              style={{ marginBottom: "20px", width: "200px" }}
+              size="large"
+              value={amount}
+              onChange={onAmountChange}
+            />
+          </Col>
+        </Row>
+      </Modal>
     </div>
   );
 }
