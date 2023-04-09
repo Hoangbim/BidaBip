@@ -20,6 +20,7 @@ const useHttp = () => {
 
   //hàm sendRequest với 2 params, requestConfig là 1 mảng chứa thông tin url, method, headers, body; applyData là hàm xử lý data trả về từ fetch
   const sendRequest = useCallback(async (requestConfig, applyData) => {
+    console.log("requestRunning");
     //đặt trạng thái đang fetch là true, error hiện tại là null
     setIsLoading(true);
     setError(null);
@@ -30,10 +31,12 @@ const useHttp = () => {
         headers: requestConfig.headers ? requestConfig.headers : {},
         body: requestConfig.body ? JSON.stringify(requestConfig.body) : null,
       });
+
       const data = await res.json();
       //gọi hàm applyData và truyền vào data
       applyData(data);
     } catch (err) {
+      console.log(err);
       //thông báo lỗi quá trình fetch
       setError(err);
     }

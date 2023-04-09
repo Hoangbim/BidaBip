@@ -13,7 +13,7 @@ function Layout() {
           textAlign: "center",
         }}
       >
-        <strong>Copyright BỊP TEAM 2023</strong>
+        <strong>From BỊP TEAM with 🖤</strong>
       </Footer>
     </div>
   );
