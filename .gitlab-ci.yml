@@ -9,7 +9,7 @@ deploy:
     name: production
     url: https://biabip.cc
   only:
-    - master
+    - main
   script:
     - npm i
     - npm run build
