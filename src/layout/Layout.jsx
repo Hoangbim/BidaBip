@@ -13,7 +13,7 @@ function Layout() {
           textAlign: "center",
         }}
       >
-        Bida Bip
+        <strong>Copyright BỊP TEAM 2023</strong>
       </Footer>
     </div>
   );

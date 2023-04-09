@@ -20,7 +20,7 @@ const HeaderComponent = () => {
   } = theme.useToken();
   return (
     <Layout className="layout">
-      <Header>BIDA BIP</Header>
+      <Header>BIDA BỊP</Header>
     </Layout>
   );
 };

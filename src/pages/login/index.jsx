@@ -78,7 +78,7 @@ function LoginPage() {
             size="large"
             value={userName}
             onChange={onUserNameChange}
-            placeholder="User name"
+            placeholder="Enter your name"
           />
         </Col>
         {userName && (

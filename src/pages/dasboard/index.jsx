@@ -19,7 +19,7 @@ import {
 } from "../../hooks/useHttp";
 import { useNavigate, useParams } from "react-router-dom";
 
-export const baseUrl = "http://206.189.47.104:3000";
+export const baseUrl = "https://biabip.ntbinh.me";
 
 function DashBoard() {
   const navigate = useNavigate();
@@ -86,28 +86,34 @@ function DashBoard() {
       key: "action",
       render: (_, record) => {
         return (
-          <Popconfirm
+          (amount && amount != 0 && (
+            <Popconfirm
             placement="topLeft"
-            title="Pay"
+            title={`Pay ${amount} to ${record.id}`}
             onConfirm={async () => {
               try {
-                const res = await fetch(
-                  `${baseUrl}/tables/${tableId}/players/${currentUser}/transfer`,
-                  {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                      amount: amount,
-                      toPlayerId: record.id,
-                    }),
+                if (amount && amount !=0) {
+                  const res = await fetch(
+                    `${baseUrl}/tables/${tableId}/players/${currentUser}/transfer`,
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        amount: amount,
+                        toPlayerId: record.id,
+                      }),
+                    }
+                  );
+                  if (res.status === 200) {
+                    setAmount(0);
+                    fetchTableData();
                   }
-                );
-                if (res.status === 200) {
-                  setAmount(0);
-                  fetchTableData();
+                } else {
+                  alert("Please enter the amount");
                 }
+                
               } catch (error) {
                 handleError(error);
               }
@@ -123,6 +129,8 @@ function DashBoard() {
               PAY
             </Button>
           </Popconfirm>
+          ))
+          
         );
       },
     },
