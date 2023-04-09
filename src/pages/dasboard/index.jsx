@@ -16,9 +16,9 @@ import {
   getTableInfo,
   getUserInfo,
   handleError,
-  saveTableInfo,
+  // saveTableInfo,
 } from "../../hooks/useHttp";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 // export const baseUrl = "http://206.189.47.104:3000";
 export const baseUrl = "https://api.biabip.cc";
@@ -36,6 +36,7 @@ function DashBoard() {
     if (!tId || !currentUser) {
       navigate("/");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tId, currentUser]);
 
   const onAmountChange = (e) => {
@@ -65,6 +66,7 @@ function DashBoard() {
 
   useEffect(() => {
     fetchTableData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const columns = [

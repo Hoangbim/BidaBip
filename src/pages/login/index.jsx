@@ -2,8 +2,7 @@ import { Button, Col, Input, Row, Divider } from "antd";
 import React, { useState } from "react";
 import { baseUrl } from "../dasboard";
 import { useNavigate } from "react-router-dom";
-import useHttp, {
-  getTableInfo,
+import {
   handleError,
   saveTableInfo,
   saveUserInfo,
@@ -46,7 +45,7 @@ function LoginPage() {
       if (data) {
         joinTableHandler(data.id);
       }
-      // setTableName(data.id);
+      setTableName(data.name);
     } catch (e) {
       handleError(e);
     }

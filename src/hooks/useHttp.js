@@ -42,7 +42,7 @@ const useHttp = () => {
     }
     //đặt lại Isloading là false khi quá trình fetch xong
     setIsLoading(false);
-  });
+  }, []);
 
   //trả về trạng thái isLoading, error, và hàm sendRequest(config, applyData)
   return {
