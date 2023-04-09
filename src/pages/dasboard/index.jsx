@@ -21,7 +21,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 
 // export const baseUrl = "http://206.189.47.104:3000";
-export const baseUrl = "https://biabip.ntbinh.me";
+export const baseUrl = "https://api.biabip.cc";
 
 function DashBoard() {
   const navigate = useNavigate();
