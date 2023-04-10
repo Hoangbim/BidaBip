@@ -12,15 +12,9 @@ import {
 } from "antd";
 import Title from "antd/es/typography/Title";
 import { EuroOutlined } from "@ant-design/icons";
-import {
-  getTableInfo,
-  getUserInfo,
-  handleError,
-  saveTableInfo,
-} from "../../hooks/useHttp";
-import { useNavigate, useParams } from "react-router-dom";
+import { getTableInfo, getUserInfo, handleError } from "../../hooks/useHttp";
+import { useNavigate } from "react-router-dom";
 
-// export const baseUrl = "http://206.189.47.104:3000";
 export const baseUrl = "https://biabip.ntbinh.me";
 
 function DashBoard() {
@@ -52,7 +46,6 @@ function DashBoard() {
 
     if (data) {
       setTableId(data.id);
-      // saveTableInfo(data.id);
       const players = Object.keys(data.players).map(
         (item) => data.players[item]
       );

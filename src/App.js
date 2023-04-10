@@ -10,6 +10,7 @@ import Layout from "./layout/Layout";
 import ErrorPage from "./pages/ErrorPage";
 import DashBoard from "./pages/dasboard";
 import LoginPage from "./pages/login";
+import OverView from "./pages/overview";
 
 function App() {
   // const route = createBrowserRouter([
@@ -38,6 +39,7 @@ function App() {
         <Route path=":id" element={<DashBoard />} />
         <Route path="*" element={<div>not found</div>} />
       </Route>
+      <Route path="/over-view/:tableId" element={<OverView />} />
     </Routes>
   );
 }
