@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Button, Tag, Table, Typography } from "antd";
+import { Button, Row, Tag, Col, Table, Typography, List, Modal } from "antd";
 import Title from "antd/es/typography/Title";
 
 import { getTableInfo, getUserInfo } from "../../hooks/useHttp";
-import { useNavigate } from "react-router-dom";
+import { useAsyncError, useNavigate } from "react-router-dom";
 
 export const baseUrl = "https://biabip.ntbinh.me";
-
+const logUrl = "https://api.biabip.cc";
 function OverView() {
   const navigate = useNavigate();
   const [tableData, setTableData] = useState();
@@ -14,6 +14,10 @@ function OverView() {
 
   const tId = getTableInfo();
   const currentUser = getUserInfo();
+
+  const [logData, setLogData] = useState("");
+
+  const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
     if (!tId || !currentUser) {
@@ -29,16 +33,30 @@ function OverView() {
     });
 
     const data = await res.json();
-
+    // return;
     if (data) {
       setTableId(data.id);
       const players = Object.keys(data.players).map(
         (item) => data.players[item]
       );
+
       const convertedData = players.map((item) => {
         return { ...item, key: item.id };
       });
+
       setTableData(convertedData);
+      const history = Object.keys(data.history).map(
+        (item) => data.history[item]
+      );
+
+      const convertedHistory = history.map((item) => {
+        return { ...item, key: item.id };
+      });
+
+      const gameLog = convertedHistory.map((item, i) => {
+        return ` ${i}: ${item.fromPlayerId} transferred ${item.toPlayerId} ${item.amount}`;
+      });
+      setLogData(gameLog);
     }
   };
 
@@ -60,7 +78,11 @@ function OverView() {
       render: (value) => {
         const color = value > 0 ? "green" : "red";
         return (
-          <Tag color={color} size="large" style={{ width: "50px" }}>
+          <Tag
+            color={color}
+            size="large"
+            style={{ width: "100px", textAlign: "center" }}
+          >
             <h3>{value}</h3>
           </Tag>
         );
@@ -77,8 +99,15 @@ function OverView() {
         Table ID:
         <Typography.Paragraph copyable>{tableId}</Typography.Paragraph>
       </Title>
+
+      <div style={{}}></div>
       <Button type="primary" onClick={fetchTableData} size="large">
         Reload
+      </Button>
+
+      {/* open modal */}
+      <Button type="primary" onClick={() => setOpenModal(true)} size="large">
+        Show Log
       </Button>
 
       <Table dataSource={tableData} columns={columns}></Table>
@@ -93,6 +122,25 @@ function OverView() {
       >
         Back Home
       </Button>
+
+      <Modal
+        title={<h3>Transfer log</h3>}
+        // style={{ top: 20 }}
+        centered
+        onOk={() => setOpenModal(false)}
+        open={openModal}
+      >
+        <List
+          size="small"
+          bordered
+          dataSource={logData}
+          renderItem={(item) => (
+            <List.Item>
+              <h5>{item}</h5>
+            </List.Item>
+          )}
+        />
+      </Modal>
     </div>
   );
 }
