@@ -23,6 +23,7 @@ function OverView() {
     if (!tId || !currentUser) {
       navigate("/");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tId, currentUser]);
 
   const fetchTableData = async () => {
@@ -61,6 +62,7 @@ function OverView() {
 
   useEffect(() => {
     fetchTableData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const columns = [

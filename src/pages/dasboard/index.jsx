@@ -16,7 +16,7 @@ import { DollarOutlined, EyeOutlined } from "@ant-design/icons";
 import { getTableInfo, getUserInfo, handleError } from "../../hooks/useHttp";
 import { useAsyncError, useNavigate } from "react-router-dom";
 
-export const baseUrl = "https://biabip.ntbinh.me";
+export const baseUrl = "https://api.biabip.cc";
 
 function DashBoard() {
   const navigate = useNavigate();
@@ -36,6 +36,7 @@ function DashBoard() {
     if (!tId || !currentUser) {
       navigate("/");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tId, currentUser]);
 
   const onAmountChange = (e) => {
@@ -84,6 +85,7 @@ function DashBoard() {
 
   useEffect(() => {
     fetchTableData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getPlayerLogData = (record) => {

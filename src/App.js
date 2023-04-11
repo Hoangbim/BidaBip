@@ -7,7 +7,7 @@ import { Routes, Route } from "react-router-dom";
 
 import "./App.css";
 import Layout from "./layout/Layout";
-import ErrorPage from "./pages/ErrorPage";
+// import ErrorPage from "./pages/ErrorPage";
 import DashBoard from "./pages/dasboard";
 import LoginPage from "./pages/login";
 import OverView from "./pages/overview";

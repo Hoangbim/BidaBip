@@ -1,0 +1,18 @@
+image: node:latest
+
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  environment:
+    name: production
+    url: https://biabip.cc
+  only:
+    - main
+  script:
+    - npm i
+    - npm run build
+    - npx netlify-cli deploy --site $NETLIFY_SITE_ID --auth $NETLIFY_AUTH_TOKEN --prod
+  tags:
+    - belo-release

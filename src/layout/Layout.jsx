@@ -13,7 +13,7 @@ function Layout() {
           textAlign: "center",
         }}
       >
-        BIDA BIP
+        <strong>From BỊP TEAM with 🖤</strong>
       </Footer>
     </div>
   );
