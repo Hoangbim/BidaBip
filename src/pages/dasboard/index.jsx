@@ -26,6 +26,7 @@ function DashBoard() {
   const currentUser = getUserInfo();
   const [modal1Open, setModal1Open] = useState(false);
   const [modalData, setModalData] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     if (!tId || !currentUser) {
       navigate("/");
@@ -139,9 +140,11 @@ function DashBoard() {
         title={`Transfer to ${modalData.id}`}
         // style={{ top: 20 }}
         centered
+        confirmLoading={isLoading}
         open={modal1Open}
         onOk={async () => {
           try {
+            setIsLoading(true);
             const res = await fetch(
               `${baseUrl}/tables/${tableId}/players/${currentUser}/transfer`,
               {
@@ -156,9 +159,9 @@ function DashBoard() {
               }
             );
             if (res.status === 400) {
+              setModal1Open(false);
               const data = await res.json();
               const errMess = data.message;
-              console.log("errMess", errMess);
               notification.error({
                 message: errMess,
                 placement: "top",
@@ -174,9 +177,11 @@ function DashBoard() {
               setModal1Open(false);
               setAmount("");
               fetchTableData();
+              setIsLoading(false);
             }
           } catch (error) {
             handleError(error);
+            setIsLoading(false);
           }
         }}
         onCancel={() => {
