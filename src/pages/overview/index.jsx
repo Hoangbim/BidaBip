@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Button, Row, Tag, Col, Table, Typography, List, Modal } from "antd";
+import { Button,  Tag,  Table, Typography, List, Modal } from "antd";
 import Title from "antd/es/typography/Title";
 
 import { getTableInfo, getUserInfo } from "../../hooks/useHttp";
-import { useAsyncError, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 
 export const baseUrl = "https://biabip.ntbinh.me";
-const logUrl = "https://api.biabip.cc";
+// const logUrl = "https://api.biabip.cc";
 function OverView() {
   const navigate = useNavigate();
   const [tableData, setTableData] = useState();
