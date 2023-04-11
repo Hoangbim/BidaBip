@@ -70,30 +70,35 @@ function DashBoard() {
       title: "Amount",
       dataIndex: "chips",
       key: "chips",
-      render: (value) => (
-        <Tag color="red" size="large" style={{ width: "50px" }}>
-          <h3>{value}</h3>
-        </Tag>
-      ),
+      render: (value) => {
+        const color = value > 0 ? "green" : "red";
+        return (
+          <Tag color={color} size="large" style={{ width: "50px" }}>
+            <h3>{value}</h3>
+          </Tag>
+        );
+      },
     },
     {
       title: "Action",
       dataIndex: "action",
       key: "action",
       render: (_, record) => {
-        return (
-          <Button
-            icon={<EuroOutlined style={{ color: "orange" }} />}
-            type="primary"
-            size="large"
-            onClick={() => {
-              setModalData(record);
-              return setModal1Open(true);
-            }}
-          >
-            PAY
-          </Button>
-        );
+        if (currentUser !== record.id) {
+          return (
+            <Button
+              icon={<EuroOutlined style={{ color: "orange" }} />}
+              type="primary"
+              size="large"
+              onClick={() => {
+                setModalData(record);
+                return setModal1Open(true);
+              }}
+            >
+              PAY
+            </Button>
+          );
+        }
       },
     },
   ];
@@ -103,23 +108,31 @@ function DashBoard() {
       <Title level={3} style={{ alignSelf: "center" }}>
         SCOREBOARD
       </Title>
-      <Title level={4} style={{ alignSelf: "center" }}>
-        Table ID:
-        <Typography.Paragraph copyable>{tableId}</Typography.Paragraph>
-      </Title>
+
+      {/* <h5>Table ID:</h5> */}
+      <Typography.Paragraph copyable>{tableId}</Typography.Paragraph>
 
       <Table dataSource={tableData} columns={columns}></Table>
-
-      <Button
-        size="large"
-        type="primary"
-        onClick={() => {
-          localStorage.clear();
-          navigate("/");
-        }}
-      >
-        Log Out!
-      </Button>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <Button
+          size="large"
+          type="primary"
+          onClick={() => {
+            localStorage.clear();
+            navigate("/");
+          }}
+        >
+          Log Out!
+        </Button>
+        <Button
+          type="primary"
+          onClick={fetchTableData}
+          size="large"
+          // style={{ width: "40%" }}
+        >
+          Reload
+        </Button>
+      </div>
 
       {/* -------------------------------------modal---------------- */}
       <Modal

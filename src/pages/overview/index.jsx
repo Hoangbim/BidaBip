@@ -55,11 +55,14 @@ function OverView() {
       title: "Amount",
       dataIndex: "chips",
       key: "chips",
-      render: (value) => (
-        <Tag color="red" size="large" style={{ width: "50px" }}>
-          <h3>{value}</h3>
-        </Tag>
-      ),
+      render: (value) => {
+        const color = value > 0 ? "green" : "red";
+        return (
+          <Tag color={color} size="large" style={{ width: "50px" }}>
+            <h3>{value}</h3>
+          </Tag>
+        );
+      },
     },
   ];
 
