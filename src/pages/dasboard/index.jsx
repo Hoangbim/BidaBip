@@ -14,7 +14,7 @@ import {
 import Title from "antd/es/typography/Title";
 import { DollarOutlined, EyeOutlined } from "@ant-design/icons";
 import { getTableInfo, getUserInfo, handleError } from "../../hooks/useHttp";
-import { useAsyncError, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export const baseUrl = "https://api.biabip.cc";
 
