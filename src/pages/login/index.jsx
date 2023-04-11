@@ -2,15 +2,10 @@ import { Button, Col, Input, Row, Divider } from "antd";
 import React, { useState } from "react";
 import { baseUrl } from "../dasboard";
 import { useNavigate } from "react-router-dom";
-import {
-  handleError,
-  saveTableInfo,
-  saveUserInfo,
-} from "../../hooks/useHttp";
+import { handleError, saveTableInfo, saveUserInfo } from "../../hooks/useHttp";
 
 function LoginPage() {
   const [userName, setUserName] = useState("");
-  const [tableName, setTableName] = useState("");
   const [inputTableId, setInputTableId] = useState("");
   const navigate = useNavigate();
 
@@ -45,7 +40,6 @@ function LoginPage() {
       if (data) {
         joinTableHandler(data.id);
       }
-      setTableName(data.name);
     } catch (e) {
       handleError(e);
     }
@@ -62,6 +56,7 @@ function LoginPage() {
             placeholder="Enter your name"
           />
         </Col>
+
         {userName && (
           <>
             <Col span={24} style={{ marginBottom: 16 }}>
@@ -69,12 +64,6 @@ function LoginPage() {
                 CREATE A TABLE
               </Button>
             </Col>
-
-            {tableName && (
-              <Col span={24} style={{ marginBottom: 16 }}>
-                Table ID: <h3>{tableName}</h3>
-              </Col>
-            )}
 
             <Col span={24}>
               <Divider />
@@ -89,7 +78,7 @@ function LoginPage() {
                 }}
               ></Input>
             </Col>
-            <Col span={24} style={{ marginBottom: 16 }}>
+            <Col span={12} style={{ marginBottom: 16 }}>
               <Button
                 size="large"
                 type="primary"
@@ -98,6 +87,19 @@ function LoginPage() {
                 }}
               >
                 JOIN TABLE
+              </Button>
+            </Col>
+            <Col span={12}>
+              <Button
+                size="large"
+                type="primary"
+                onClick={() => {
+                  saveUserInfo(userName);
+                  saveTableInfo(inputTableId);
+                  navigate(`over-view/${inputTableId}`);
+                }}
+              >
+                Watch
               </Button>
             </Col>
           </>

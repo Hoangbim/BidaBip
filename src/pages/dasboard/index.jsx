@@ -12,15 +12,9 @@ import {
 } from "antd";
 import Title from "antd/es/typography/Title";
 import { EuroOutlined } from "@ant-design/icons";
-import {
-  getTableInfo,
-  getUserInfo,
-  handleError,
-  // saveTableInfo,
-} from "../../hooks/useHttp";
+import { getTableInfo, getUserInfo, handleError } from "../../hooks/useHttp";
 import { useNavigate } from "react-router-dom";
 
-// export const baseUrl = "http://206.189.47.104:3000";
 export const baseUrl = "https://api.biabip.cc";
 
 function DashBoard() {
@@ -32,6 +26,7 @@ function DashBoard() {
   const currentUser = getUserInfo();
   const [modal1Open, setModal1Open] = useState(false);
   const [modalData, setModalData] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     if (!tId || !currentUser) {
       navigate("/");
@@ -53,7 +48,6 @@ function DashBoard() {
 
     if (data) {
       setTableId(data.id);
-      // saveTableInfo(data.id);
       const players = Object.keys(data.players).map(
         (item) => data.players[item]
       );
@@ -79,30 +73,35 @@ function DashBoard() {
       title: "Amount",
       dataIndex: "chips",
       key: "chips",
-      render: (value) => (
-        <Tag color="red" size="large" style={{ width: "50px" }}>
-          <h3>{value}</h3>
-        </Tag>
-      ),
+      render: (value) => {
+        const color = value > 0 ? "green" : "red";
+        return (
+          <Tag color={color} size="large" style={{ width: "50px" }}>
+            <h3>{value}</h3>
+          </Tag>
+        );
+      },
     },
     {
       title: "Action",
       dataIndex: "action",
       key: "action",
       render: (_, record) => {
-        return (
-          <Button
-            icon={<EuroOutlined style={{ color: "orange" }} />}
-            type="primary"
-            size="large"
-            onClick={() => {
-              setModalData(record);
-              return setModal1Open(true);
-            }}
-          >
-            PAY
-          </Button>
-        );
+        if (currentUser !== record.id) {
+          return (
+            <Button
+              icon={<EuroOutlined style={{ color: "orange" }} />}
+              type="primary"
+              size="large"
+              onClick={() => {
+                setModalData(record);
+                return setModal1Open(true);
+              }}
+            >
+              PAY
+            </Button>
+          );
+        }
       },
     },
   ];
@@ -112,32 +111,42 @@ function DashBoard() {
       <Title level={3} style={{ alignSelf: "center" }}>
         SCOREBOARD
       </Title>
-      <Title level={4} style={{ alignSelf: "center" }}>
-        Table ID:
-        <Typography.Paragraph copyable>{tableId}</Typography.Paragraph>
-      </Title>
+
+      {/* <h5>Table ID:</h5> */}
+      <Typography.Paragraph copyable>{tableId}</Typography.Paragraph>
 
       <Table dataSource={tableData} columns={columns}></Table>
-
-      <Button
-        size="large"
-        type="primary"
-        onClick={() => {
-          localStorage.clear();
-          navigate("/");
-        }}
-      >
-        Log Out!
-      </Button>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <Button
+          size="large"
+          type="primary"
+          onClick={() => {
+            localStorage.clear();
+            navigate("/");
+          }}
+        >
+          Log Out!
+        </Button>
+        <Button
+          type="primary"
+          onClick={fetchTableData}
+          size="large"
+          // style={{ width: "40%" }}
+        >
+          Reload
+        </Button>
+      </div>
 
       {/* -------------------------------------modal---------------- */}
       <Modal
         title={`Transfer to ${modalData.id}`}
         // style={{ top: 20 }}
         centered
+        confirmLoading={isLoading}
         open={modal1Open}
         onOk={async () => {
           try {
+            setIsLoading(true);
             const res = await fetch(
               `${baseUrl}/tables/${tableId}/players/${currentUser}/transfer`,
               {
@@ -152,9 +161,9 @@ function DashBoard() {
               }
             );
             if (res.status === 400) {
+              setModal1Open(false);
               const data = await res.json();
               const errMess = data.message;
-              console.log("errMess", errMess);
               notification.error({
                 message: errMess,
                 placement: "top",
@@ -170,9 +179,11 @@ function DashBoard() {
               setModal1Open(false);
               setAmount("");
               fetchTableData();
+              setIsLoading(false);
             }
           } catch (error) {
             handleError(error);
+            setIsLoading(false);
           }
         }}
         onCancel={() => {
