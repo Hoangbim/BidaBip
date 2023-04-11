@@ -9,11 +9,12 @@ import {
   Typography,
   notification,
   Modal,
+  List,
 } from "antd";
 import Title from "antd/es/typography/Title";
-import { EuroOutlined } from "@ant-design/icons";
+import { DollarOutlined, EyeOutlined } from "@ant-design/icons";
 import { getTableInfo, getUserInfo, handleError } from "../../hooks/useHttp";
-import { useNavigate } from "react-router-dom";
+import { useAsyncError, useNavigate } from "react-router-dom";
 
 export const baseUrl = "https://biabip.ntbinh.me";
 
@@ -25,8 +26,12 @@ function DashBoard() {
   const tId = getTableInfo();
   const currentUser = getUserInfo();
   const [modal1Open, setModal1Open] = useState(false);
+  const [logModalOpen, setLogModalOpen] = useState(false);
   const [modalData, setModalData] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [logData, setLogData] = useState("");
+  const [historyData, setHistoryData] = useState("");
+  const [gameLogData, setGameLogData] = useState("");
   useEffect(() => {
     if (!tId || !currentUser) {
       navigate("/");
@@ -54,12 +59,61 @@ function DashBoard() {
         return { ...item, key: item.id };
       });
       setTableData(convertedData);
+
+      ////get log data
+      if (data.history) {
+        const history = Object.keys(data.history).map(
+          (item) => data.history[item]
+        );
+        // console.log("history: ", history);
+        setHistoryData(history);
+        const convertedHistory = history.map((item) => {
+          return { ...item, key: item.id };
+        });
+
+        const gameLog = convertedHistory.map((item, i) => {
+          return ` ${i + 1}: ${item.fromPlayerId} transferred ${
+            item.toPlayerId
+          } ${item.amount}`;
+        });
+
+        setGameLogData(gameLog);
+      }
     }
   };
 
   useEffect(() => {
     fetchTableData();
   }, []);
+
+  const getPlayerLogData = (record) => {
+    if (historyData) {
+      const playerHistory = historyData?.filter((item, i) => {
+        return item.fromPlayerId === record.id;
+      });
+
+      const chickenHistory = historyData?.filter((item) => {
+        return item.toPlayerId === "Chicken";
+      });
+
+      const chickenLog = chickenHistory.map((item, i) => {
+        return `${i + 1}: ${item.fromPlayerId} transferred ${item.toPlayerId} ${
+          item.amount
+        } `;
+      });
+
+      const playerLog = playerHistory.map((item, i) => {
+        return `${i + 1}: ${item.fromPlayerId} transferred ${item.toPlayerId} ${
+          item.amount
+        } `;
+      });
+      if (record.id === "Chicken") {
+        setLogData(chickenLog);
+      } else {
+        setLogData(playerLog);
+      }
+    }
+  };
 
   const columns = [
     {
@@ -74,49 +128,93 @@ function DashBoard() {
       render: (value) => {
         const color = value > 0 ? "green" : "red";
         return (
-          <Tag color={color} size="large" style={{ width: "50px" }}>
-            <h3>{value}</h3>
-          </Tag>
+          <>
+            <Tag
+              color={color}
+              // size="large"
+              style={{
+                textAlign: "center",
+                wordWrap: "break-word",
+                width: "50px",
+                // height: "40px",
+                paddingTop: "0px",
+              }}
+            >
+              <h3>{value}</h3>
+            </Tag>
+          </>
         );
       },
     },
     {
-      title: "Action",
-      dataIndex: "action",
-      key: "action",
+      title: "Pay",
+      dataIndex: "pay",
+      key: "pay",
       render: (_, record) => {
         if (currentUser !== record.id) {
           return (
             <Button
-              icon={<EuroOutlined style={{ color: "orange" }} />}
-              type="primary"
-              size="large"
+              icon={<DollarOutlined style={{ color: "orange" }} />}
+              // type="primary"
+              // size="large"
               onClick={() => {
                 setModalData(record);
                 return setModal1Open(true);
               }}
             >
-              PAY
+              {/* PAY */}
             </Button>
           );
         }
       },
     },
+    {
+      title: "Log",
+      dataIndex: "log",
+      key: "log",
+      render: (_, record) => {
+        return (
+          <Button
+            // type="primary"
+            icon={<EyeOutlined style={{ color: "orange" }} />}
+            size="large"
+            onClick={() => {
+              setLogModalOpen(true);
+              getPlayerLogData(record);
+            }}
+          ></Button>
+        );
+      },
+    },
   ];
 
   return (
-    <div style={{ padding: "50px 16px" }}>
-      <Title level={3} style={{ alignSelf: "center" }}>
+    <div
+      style={{
+        padding: "0 16px",
+      }}
+    >
+      <Title level={3} style={{ textAlign: "center" }}>
         SCOREBOARD
       </Title>
 
-      {/* <h5>Table ID:</h5> */}
-      <Typography.Paragraph copyable>{tableId}</Typography.Paragraph>
+      <Typography.Paragraph
+        copyable
+        style={{ textAlign: "center", marginBottom: "30px" }}
+      >
+        {tableId}
+      </Typography.Paragraph>
 
-      <Table dataSource={tableData} columns={columns}></Table>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
+      <Table dataSource={tableData} columns={columns} size="small"></Table>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: "20px",
+        }}
+      >
         <Button
-          size="large"
+          // size="large"
           type="primary"
           onClick={() => {
             localStorage.clear();
@@ -128,10 +226,21 @@ function DashBoard() {
         <Button
           type="primary"
           onClick={fetchTableData}
-          size="large"
+          // size="large"
           // style={{ width: "40%" }}
         >
           Reload
+        </Button>
+        <Button
+          type="primary"
+          onClick={() => {
+            setLogModalOpen(true);
+            setLogData(gameLogData);
+          }}
+          // size="large"
+          // style={{ width: "40%" }}
+        >
+          Show all log
         </Button>
       </div>
 
@@ -159,7 +268,7 @@ function DashBoard() {
               }
             );
             if (res.status === 400) {
-              setModal1Open(false);
+              setIsLoading(false);
               const data = await res.json();
               const errMess = data.message;
               notification.error({
@@ -193,13 +302,35 @@ function DashBoard() {
           <Col span={12} offset={6}>
             <InputNumber
               placeholder="Enter the loss amount"
-              style={{ marginBottom: "20px", width: "200px" }}
+              style={{ marginBottom: "20px" }}
               size="large"
               value={amount}
+              maxLength={4}
               onChange={onAmountChange}
             />
           </Col>
         </Row>
+      </Modal>
+
+      {/* Modal transfer log */}
+      <Modal
+        title={<h3>Transfer log</h3>}
+        // style={{ top: 20 }}
+        centered
+        onOk={() => setLogModalOpen(false)}
+        open={logModalOpen}
+        onCancel={() => setLogModalOpen(false)}
+      >
+        <List
+          size="small"
+          bordered
+          dataSource={logData}
+          renderItem={(item) => (
+            <List.Item>
+              <h5>{item}</h5>
+            </List.Item>
+          )}
+        />
       </Modal>
     </div>
   );
