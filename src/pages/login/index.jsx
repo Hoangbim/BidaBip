@@ -1,4 +1,4 @@
-import { Button, Col, Input, Row, Divider, notification } from "antd";
+import { Button, Col, Input, Row, notification } from "antd";
 import React, { useEffect, useState } from "react";
 import { baseUrl } from "../dasboard";
 import { useNavigate } from "react-router-dom";
@@ -115,12 +115,12 @@ function LoginPage() {
                 justifyContent: "center",
               }}
             >
-              <p style={{ fontWeight: "bolder", scale: "1.3" }}>
-                Welcome {userName}!&nbsp;&nbsp;&nbsp;&nbsp;
+              <p style={{ fontWeight: "bolder" }}>
+                Welcome {userName}!&nbsp;&nbsp;
               </p>
               <p
                 onClick={logoutHandler}
-                style={{ color: "var(--primary-color)" }}
+                style={{ color: "var(--primary-color)", scale: "0.7" }}
               >
                 (logout)
               </p>
@@ -166,10 +166,27 @@ function LoginPage() {
             <Col span={12}>
               <Button
                 type="primary"
-                onClick={() => {
+                onClick={async () => {
                   // saveUserInfo(userName);
-                  saveTableInfo(inputTableId);
-                  navigate(`over-view/${inputTableId}`);
+                  const res = await fetch(`${baseUrl}/tables/${inputTableId}`, {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                  });
+                  const data = await res.json();
+
+                  if (res.status === 200) {
+                    saveTableInfo(inputTableId);
+                    navigate(`over-view/${inputTableId}`);
+                  }
+                  if (!res.ok) {
+                    const errMess = data.message;
+
+                    console.log("res", data);
+                    notification.error({
+                      message: errMess,
+                      placement: "top",
+                    });
+                  }
                 }}
                 style={{ backgroundColor: "var(--primary-color)" }}
                 disabled={inputTableId ? false : true}

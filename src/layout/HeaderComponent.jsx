@@ -13,7 +13,7 @@ const HeaderComponent = () => {
           backgroundColor: "#15827C ",
         }}
       >
-        <img src={logo} style={{ height: "90%", marginTop: "1%" }} />
+        <img src={logo} style={{ height: "100%" }} alt="logo" />
       </Header>
     </Layout>
   );

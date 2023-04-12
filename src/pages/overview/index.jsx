@@ -12,9 +12,8 @@ import Title from "antd/es/typography/Title";
 import { EyeOutlined } from "@ant-design/icons";
 import { getTableInfo, getUserInfo } from "../../hooks/useHttp";
 import { useNavigate } from "react-router-dom";
+import { baseUrl } from "../dasboard";
 
-export const baseUrl = "https://biabip.ntbinh.me";
-// const logUrl = "https://api.biabip.cc";
 function OverView() {
   const navigate = useNavigate();
   const [tableData, setTableData] = useState();
