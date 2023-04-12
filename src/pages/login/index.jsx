@@ -1,13 +1,27 @@
-import { Button, Col, Input, Row, Divider } from "antd";
-import React, { useState } from "react";
+import { Button, Col, Input, Row, Divider, notification } from "antd";
+import React, { useEffect, useState } from "react";
 import { baseUrl } from "../dasboard";
 import { useNavigate } from "react-router-dom";
-import { handleError, saveTableInfo, saveUserInfo } from "../../hooks/useHttp";
+import {
+  getUserInfo,
+  handleError,
+  saveTableInfo,
+  saveUserInfo,
+} from "../../hooks/useHttp";
 
 function LoginPage() {
   const [userName, setUserName] = useState("");
   const [inputTableId, setInputTableId] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const savedUserName = getUserInfo();
+    if (savedUserName) {
+      setIsLoggedIn(true);
+      setUserName(savedUserName);
+    }
+  }, []);
 
   const onUserNameChange = (e) => {
     setUserName(e.target.value);
@@ -21,10 +35,19 @@ function LoginPage() {
           method: "POST",
         }
       );
+
       if (res.status === 200) {
-        saveUserInfo(userName);
         saveTableInfo(tableId);
         navigate(`${tableId}`);
+      }
+      if (res.status === 404) {
+        const data = await res.json();
+        const errMess = data.message;
+
+        notification.error({
+          message: errMess,
+          placement: "top",
+        });
       }
     } catch (e) {
       handleError(e);
@@ -45,33 +68,83 @@ function LoginPage() {
     }
   };
 
+  const loginHandler = () => {
+    setIsLoggedIn(true);
+    saveUserInfo(userName);
+  };
+  const logoutHandler = () => {
+    setIsLoggedIn(false);
+    setUserName("");
+    localStorage.clear();
+  };
+
   return (
-    <div style={{ padding: "50px 16px" }}>
+    <div style={{ padding: "50px 16px", textAlign: "center" }}>
       <Row>
-        <Col span={24} style={{ marginBottom: 16 }}>
-          <Input
-            size="large"
-            value={userName}
-            onChange={onUserNameChange}
-            placeholder="Enter your name"
-          />
-        </Col>
-
-        {userName && (
+        {!isLoggedIn && (
           <>
-            <Col span={24} style={{ marginBottom: 16 }}>
-              <Button size="large" type="primary" onClick={onCreateTable}>
-                CREATE A TABLE
-              </Button>
-            </Col>
-
-            <Col span={24}>
-              <Divider />
-            </Col>
             <Col span={24} style={{ marginBottom: 16 }}>
               <Input
                 size="large"
-                placeholder="Table Id"
+                value={userName}
+                onChange={onUserNameChange}
+                placeholder="Enter your name"
+              />
+            </Col>
+            <Col span={24} style={{ marginBottom: 16 }}>
+              <Button
+                size="large"
+                type="primary"
+                onClick={loginHandler}
+                disabled={userName ? false : true}
+                style={{ backgroundColor: "var(--primary-color)" }}
+              >
+                LOG IN
+              </Button>
+            </Col>
+          </>
+        )}
+
+        {isLoggedIn && (
+          <>
+            <div
+              style={{
+                display: "flex",
+                width: "60%",
+                margin: "0 auto",
+                justifyContent: "center",
+              }}
+            >
+              <p style={{ fontWeight: "bolder", scale: "1.3" }}>
+                Welcome {userName}!&nbsp;&nbsp;&nbsp;&nbsp;
+              </p>
+              <p
+                onClick={logoutHandler}
+                style={{ color: "var(--primary-color)" }}
+              >
+                (logout)
+              </p>
+            </div>
+            <Col span={24} style={{ marginBottom: 16 }}>
+              <p>Now you can</p>
+            </Col>
+            <Col span={24} style={{ marginBottom: 16 }}>
+              <Button
+                type="primary"
+                onClick={onCreateTable}
+                style={{ backgroundColor: "var(--primary-color)" }}
+              >
+                CREATE A TABLE
+              </Button>
+            </Col>
+            <Col span={24} style={{ marginBottom: 16 }}>
+              <p>OR</p>
+            </Col>
+
+            <Col span={24} style={{ marginBottom: 16 }}>
+              <Input
+                size="large"
+                placeholder="Enter table ID"
                 value={inputTableId}
                 onChange={(e) => {
                   setInputTableId(e.target.value);
@@ -80,26 +153,28 @@ function LoginPage() {
             </Col>
             <Col span={12} style={{ marginBottom: 16 }}>
               <Button
-                size="large"
                 type="primary"
                 onClick={() => {
                   joinTableHandler(inputTableId);
                 }}
+                style={{ backgroundColor: "var(--primary-color)" }}
+                disabled={inputTableId ? false : true}
               >
                 JOIN TABLE
               </Button>
             </Col>
             <Col span={12}>
               <Button
-                size="large"
                 type="primary"
                 onClick={() => {
-                  saveUserInfo(userName);
+                  // saveUserInfo(userName);
                   saveTableInfo(inputTableId);
                   navigate(`over-view/${inputTableId}`);
                 }}
+                style={{ backgroundColor: "var(--primary-color)" }}
+                disabled={inputTableId ? false : true}
               >
-                Watch
+                WATCH
               </Button>
             </Col>
           </>

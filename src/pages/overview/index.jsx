@@ -1,23 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { Button,  Tag,  Table, Typography, List, Modal } from "antd";
+import {
+  Button,
+  Tag,
+  Table,
+  Typography,
+  List,
+  Modal,
+  notification,
+} from "antd";
 import Title from "antd/es/typography/Title";
-
+import { EyeOutlined } from "@ant-design/icons";
 import { getTableInfo, getUserInfo } from "../../hooks/useHttp";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export const baseUrl = "https://biabip.ntbinh.me";
 // const logUrl = "https://api.biabip.cc";
 function OverView() {
   const navigate = useNavigate();
   const [tableData, setTableData] = useState();
-  const [tableId, setTableId] = useState();
-
   const tId = getTableInfo();
   const currentUser = getUserInfo();
-
+  const [historyData, setHistoryData] = useState("");
+  const [gameLogData, setGameLogData] = useState("");
   const [logData, setLogData] = useState("");
-
-  const [openModal, setOpenModal] = useState(false);
+  const [logModalOpen, setLogModalOpen] = useState(false);
 
   useEffect(() => {
     if (!tId || !currentUser) {
@@ -33,30 +39,43 @@ function OverView() {
     });
 
     const data = await res.json();
-    // return;
+    if (res.status === 404) {
+      const errMess = data.message;
+
+      notification.error({
+        message: errMess,
+        placement: "top",
+      });
+    }
+
     if (data) {
-      setTableId(data.id);
       const players = Object.keys(data.players).map(
         (item) => data.players[item]
       );
-
       const convertedData = players.map((item) => {
         return { ...item, key: item.id };
       });
-
       setTableData(convertedData);
-      const history = Object.keys(data.history).map(
-        (item) => data.history[item]
-      );
 
-      const convertedHistory = history.map((item) => {
-        return { ...item, key: item.id };
-      });
+      ////get log data
+      if (data.history) {
+        const history = Object.keys(data.history).map(
+          (item) => data.history[item]
+        );
+        // console.log("history: ", history);
+        setHistoryData(history);
+        const convertedHistory = history.map((item) => {
+          return { ...item, key: item.id };
+        });
 
-      const gameLog = convertedHistory.map((item, i) => {
-        return ` ${i}: ${item.fromPlayerId} transferred ${item.toPlayerId} ${item.amount}`;
-      });
-      setLogData(gameLog);
+        const gameLog = convertedHistory.map((item, i) => {
+          return ` ${i + 1}: ${item.fromPlayerId} transferred ${
+            item.toPlayerId
+          } ${item.amount}`;
+        });
+
+        setGameLogData(gameLog);
+      }
     }
   };
 
@@ -64,6 +83,35 @@ function OverView() {
     fetchTableData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const getPlayerLogData = (record) => {
+    if (historyData) {
+      const playerHistory = historyData?.filter((item, i) => {
+        return item.fromPlayerId === record.id;
+      });
+
+      const chickenHistory = historyData?.filter((item) => {
+        return item.toPlayerId === "Chicken";
+      });
+
+      const chickenLog = chickenHistory.map((item, i) => {
+        return `${i + 1}: ${item.fromPlayerId} transferred ${item.toPlayerId} ${
+          item.amount
+        } `;
+      });
+
+      const playerLog = playerHistory.map((item, i) => {
+        return `${i + 1}: ${item.fromPlayerId} transferred ${item.toPlayerId} ${
+          item.amount
+        } `;
+      });
+      if (record.id === "Chicken") {
+        setLogData(chickenLog);
+      } else {
+        setLogData(playerLog);
+      }
+    }
+  };
 
   const columns = [
     {
@@ -88,35 +136,71 @@ function OverView() {
         );
       },
     },
+    {
+      title: "Log",
+      dataIndex: "log",
+      key: "log",
+      render: (_, record) => {
+        return (
+          <Button
+            // type="primary"
+            icon={<EyeOutlined style={{ color: "orange" }} />}
+            size="large"
+            onClick={() => {
+              setLogModalOpen(true);
+              getPlayerLogData(record);
+            }}
+          ></Button>
+        );
+      },
+    },
   ];
 
   return (
-    <div style={{ padding: "50px 16px" }}>
+    <div style={{ padding: "50px 16px", textAlign: "center" }}>
       <Title level={3} style={{ alignSelf: "center" }}>
         Table Overview
       </Title>
       <Title level={4} style={{ alignSelf: "center" }}>
         Table ID:
-        <Typography.Paragraph copyable>{tableId}</Typography.Paragraph>
+        <Typography.Paragraph copyable>{tId}</Typography.Paragraph>
       </Title>
 
-      <div style={{}}></div>
-      <Button type="primary" onClick={fetchTableData} size="large">
-        Reload
-      </Button>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          maxWidth: "70%",
+          margin: "0 auto",
+        }}
+      >
+        <Button
+          type="primary"
+          onClick={fetchTableData}
+          style={{ backgroundColor: "var(--primary-color)" }}
+        >
+          Reload
+        </Button>
 
-      {/* open modal */}
-      <Button type="primary" onClick={() => setOpenModal(true)} size="large">
-        Show Log
-      </Button>
+        {/* open modal */}
+        <Button
+          type="primary"
+          onClick={() => {
+            setLogModalOpen(true);
+            setLogData(gameLogData);
+          }}
+          style={{ backgroundColor: "var(--primary-color)" }}
+        >
+          Show all log
+        </Button>
+      </div>
 
       <Table dataSource={tableData} columns={columns}></Table>
 
       <Button
-        size="large"
+        style={{ backgroundColor: "var(--primary-color)" }}
         type="primary"
         onClick={() => {
-          localStorage.clear();
           navigate("/");
         }}
       >
@@ -127,8 +211,9 @@ function OverView() {
         title={<h3>Transfer log</h3>}
         // style={{ top: 20 }}
         centered
-        onOk={() => setOpenModal(false)}
-        open={openModal}
+        onOk={() => setLogModalOpen(false)}
+        open={logModalOpen}
+        onCancel={() => setLogModalOpen(false)}
       >
         <List
           size="small"

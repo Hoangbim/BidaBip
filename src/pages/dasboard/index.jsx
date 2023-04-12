@@ -216,19 +216,18 @@ function DashBoard() {
         }}
       >
         <Button
-          // size="large"
+          style={{ backgroundColor: "var(--primary-color)" }}
           type="primary"
           onClick={() => {
-            localStorage.clear();
             navigate("/");
           }}
         >
-          Log Out!
+          Leave the table
         </Button>
         <Button
           type="primary"
           onClick={fetchTableData}
-          // size="large"
+          style={{ backgroundColor: "var(--primary-color)" }}
           // style={{ width: "40%" }}
         >
           Reload
@@ -239,7 +238,7 @@ function DashBoard() {
             setLogModalOpen(true);
             setLogData(gameLogData);
           }}
-          // size="large"
+          style={{ backgroundColor: "var(--primary-color)" }}
           // style={{ width: "40%" }}
         >
           Show all log

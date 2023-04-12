@@ -1,23 +1,20 @@
-// import { Button, Dropdown, Layout, Space, theme } from "antd";
 import { Layout } from "antd";
-// import { DownOutlined } from "@ant-design/icons";
-import { Header } from "antd/es/layout/layout";
 
-// const items = [
-//   {
-//     key: "1",
-//     label: "signout",
-//   },
-//   {
-//     key: "2",
-//     label: "view log",
-//   },
-// ];
+import { Header } from "antd/es/layout/layout";
+import logo from "../assets/logo512.png";
 
 const HeaderComponent = () => {
   return (
     <Layout className="layout">
-      <Header>BIDA BỊP</Header>
+      <Header
+        style={{
+          color: "aliceblue",
+          textAlign: "center",
+          backgroundColor: "#15827C ",
+        }}
+      >
+        <img src={logo} style={{ height: "90%", marginTop: "1%" }} />
+      </Header>
     </Layout>
   );
 };
