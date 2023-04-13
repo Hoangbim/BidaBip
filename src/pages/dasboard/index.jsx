@@ -139,9 +139,12 @@ function DashBoard() {
         setLogData(playerLog);
       }
       if (type === "in") {
-        revert(incomingLog);
-        setLogData(incomingLog);
-        // console.log("transfer out", playerLog);
+        if (incomingLog.length === 0) {
+          setLogData(["Làm mà ăn đi bạn ơi =)))"]);
+        } else {
+          revert(incomingLog);
+          setLogData(incomingLog);
+        }
       }
     }
   };
