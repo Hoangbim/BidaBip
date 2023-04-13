@@ -10,14 +10,23 @@ import {
   notification,
   Modal,
   List,
+  Popconfirm,
+  Space,
 } from "antd";
 import Title from "antd/es/typography/Title";
-import { DollarOutlined, EyeOutlined } from "@ant-design/icons";
+import {
+  DollarOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+} from "@ant-design/icons";
 import { getTableInfo, getUserInfo, handleError } from "../../hooks/useHttp";
 import { useNavigate } from "react-router-dom";
 
 export const baseUrl = "https://api.biabip.cc";
 
+const revert = (data) => {
+  data.sort(() => -1);
+};
 function DashBoard() {
   const navigate = useNavigate();
   const [tableData, setTableData] = useState();
@@ -32,6 +41,7 @@ function DashBoard() {
   const [logData, setLogData] = useState("");
   const [historyData, setHistoryData] = useState("");
   const [gameLogData, setGameLogData] = useState("");
+  const [logModalTitle, setLogModalTitle] = useState("");
   useEffect(() => {
     if (!tId || !currentUser) {
       navigate("/");
@@ -67,6 +77,7 @@ function DashBoard() {
           (item) => data.history[item]
         );
         // console.log("history: ", history);
+        // history.sort(() => -1);
         setHistoryData(history);
         const convertedHistory = history.map((item) => {
           return { ...item, key: item.id };
@@ -77,7 +88,7 @@ function DashBoard() {
             item.toPlayerId
           } ${item.amount}`;
         });
-
+        revert(gameLog);
         setGameLogData(gameLog);
       }
     }
@@ -88,10 +99,13 @@ function DashBoard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getPlayerLogData = (record) => {
+  const getPlayerLogData = (record, type) => {
     if (historyData) {
       const playerHistory = historyData?.filter((item, i) => {
         return item.fromPlayerId === record.id;
+      });
+      const incomingAmount = historyData?.filter((item, i) => {
+        return item.toPlayerId === record.id;
       });
 
       const chickenHistory = historyData?.filter((item) => {
@@ -109,10 +123,25 @@ function DashBoard() {
           item.amount
         } `;
       });
+
+      const incomingLog = incomingAmount.map((item, i) => {
+        return `${i + 1}: ${item.fromPlayerId} transferred ${item.toPlayerId} ${
+          item.amount
+        } `;
+      });
+
       if (record.id === "Chicken") {
+        revert(chickenLog);
         setLogData(chickenLog);
-      } else {
+      }
+      if (type === "out") {
+        revert(playerLog);
         setLogData(playerLog);
+      }
+      if (type === "in") {
+        revert(incomingLog);
+        setLogData(incomingLog);
+        // console.log("transfer out", playerLog);
       }
     }
   };
@@ -151,6 +180,7 @@ function DashBoard() {
     {
       title: "Pay",
       dataIndex: "pay",
+
       key: "pay",
       render: (_, record) => {
         if (currentUser !== record.id) {
@@ -173,18 +203,32 @@ function DashBoard() {
     {
       title: "Log",
       dataIndex: "log",
+      align: "center",
       key: "log",
       render: (_, record) => {
         return (
-          <Button
-            // type="primary"
-            icon={<EyeOutlined style={{ color: "orange" }} />}
-            size="large"
-            onClick={() => {
-              setLogModalOpen(true);
-              getPlayerLogData(record);
-            }}
-          ></Button>
+          <Space>
+            <Button
+              // type="primary"
+              icon={<ArrowUpOutlined style={{ color: "red" }} />}
+              // size="large"
+              onClick={() => {
+                setLogModalOpen(true);
+                setLogModalTitle(`${record.id} outcoming log`);
+                getPlayerLogData(record, "out");
+              }}
+            ></Button>
+            <Button
+              // type="primary"
+              icon={<ArrowDownOutlined style={{ color: "green" }} />}
+              // size="large"
+              onClick={() => {
+                setLogModalOpen(true);
+                setLogModalTitle(`${record.id} incoming log`);
+                getPlayerLogData(record, "in");
+              }}
+            ></Button>
+          </Space>
         );
       },
     },
@@ -215,15 +259,26 @@ function DashBoard() {
           marginBottom: "20px",
         }}
       >
-        <Button
-          style={{ backgroundColor: "var(--primary-color)" }}
-          type="primary"
-          onClick={() => {
+        <Popconfirm
+          placement="topLeft"
+          title="R u sure?"
+          onConfirm={() => {
             navigate("/");
           }}
+          okText="OK"
+          cancelText="Cancel"
         >
-          Leave the table
-        </Button>
+          {/* <Button
+            type="text"
+            icon={<DeleteOutlined style={{ color: "red" }} />}
+          /> */}
+          <Button
+            style={{ backgroundColor: "var(--primary-color)" }}
+            type="primary"
+          >
+            Leave the table
+          </Button>
+        </Popconfirm>
         <Button
           type="primary"
           onClick={fetchTableData}
@@ -315,7 +370,7 @@ function DashBoard() {
 
       {/* Modal transfer log */}
       <Modal
-        title={<h3>Transfer log</h3>}
+        title={logModalTitle}
         // style={{ top: 20 }}
         centered
         onOk={() => setLogModalOpen(false)}
