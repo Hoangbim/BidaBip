@@ -56,7 +56,7 @@ function DashBoard() {
   // saveTableInfo(id);
   useEffect(() => {
     setIsLoggedIn(currentUser ? true : false);
-  }, []);
+  }, [currentUser]);
 
   const joinTableHandler = async (newTableId) => {
     try {
@@ -112,9 +112,7 @@ function DashBoard() {
       }
     };
     joinTable();
-  }, []);
-
-
+  }, [currentUser, id, navigate]);
 
   const onAmountChange = (e) => {
     setAmount(Math.abs(e));
