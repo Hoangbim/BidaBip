@@ -76,8 +76,6 @@ function DashBoard() {
         const history = Object.keys(data.history).map(
           (item) => data.history[item]
         );
-        // console.log("history: ", history);
-        // history.sort(() => -1);
         setHistoryData(history);
         const convertedHistory = history.map((item) => {
           return { ...item, key: item.id };
@@ -165,12 +163,11 @@ function DashBoard() {
           <>
             <Tag
               color={color}
-              // size="large"
               style={{
                 textAlign: "center",
                 wordWrap: "break-word",
                 width: "50px",
-                // height: "40px",
+
                 paddingTop: "0px",
               }}
             >
@@ -190,15 +187,11 @@ function DashBoard() {
           return (
             <Button
               icon={<DollarOutlined style={{ color: "orange" }} />}
-              // type="primary"
-              // size="large"
               onClick={() => {
                 setModalData(record);
                 return setModal1Open(true);
               }}
-            >
-              {/* PAY */}
-            </Button>
+            ></Button>
           );
         }
       },
@@ -271,10 +264,6 @@ function DashBoard() {
           okText="OK"
           cancelText="Cancel"
         >
-          {/* <Button
-            type="text"
-            icon={<DeleteOutlined style={{ color: "red" }} />}
-          /> */}
           <Button
             style={{ backgroundColor: "var(--primary-color)" }}
             type="primary"
@@ -286,7 +275,6 @@ function DashBoard() {
           type="primary"
           onClick={fetchTableData}
           style={{ backgroundColor: "var(--primary-color)" }}
-          // style={{ width: "40%" }}
         >
           Reload
         </Button>
@@ -366,6 +354,8 @@ function DashBoard() {
               value={amount}
               maxLength={4}
               onChange={onAmountChange}
+              type="tel"
+              pattern="\d*"
             />
           </Col>
         </Row>
