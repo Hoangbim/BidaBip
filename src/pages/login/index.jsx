@@ -176,7 +176,7 @@ function LoginPage() {
 
                   if (res.status === 200) {
                     saveTableInfo(inputTableId);
-                    navigate(`over-view/${inputTableId}`);
+                    navigate(`/over-view/${inputTableId}`);
                   }
                   if (!res.ok) {
                     const errMess = data.message;

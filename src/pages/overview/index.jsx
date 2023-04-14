@@ -7,6 +7,7 @@ import {
   List,
   Modal,
   notification,
+  Popconfirm,
 } from "antd";
 import Title from "antd/es/typography/Title";
 import { EyeOutlined } from "@ant-design/icons";
@@ -30,6 +31,27 @@ function OverView() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tId, currentUser]);
+  const joinTable = async (tableId) => {
+    if (currentUser) {
+      const res = await fetch(
+        `${baseUrl}/tables/${tableId}/players/${currentUser}`,
+        {
+          method: "POST",
+        }
+      );
+      if (res.status === 404) {
+        navigate("/");
+
+        const data = await res.json();
+        const errMess = data.message;
+
+        notification.error({
+          message: errMess,
+          placement: "top",
+        });
+      }
+    }
+  };
 
   const fetchTableData = async () => {
     const res = await fetch(`${baseUrl}/tables/${tId}`, {
@@ -195,17 +217,41 @@ function OverView() {
       </div>
 
       <Table dataSource={tableData} columns={columns}></Table>
-
-      <Button
-        style={{ backgroundColor: "var(--primary-color)" }}
-        type="primary"
-        onClick={() => {
-          navigate("/");
+      <div
+        style={{
+          display: "flex",
+          maxWidth: "70%",
+          margin: "0 auto",
+          justifyContent: "space-between",
         }}
       >
-        Back Home
-      </Button>
-
+        <Button
+          style={{ backgroundColor: "var(--primary-color)" }}
+          type="primary"
+          onClick={() => {
+            navigate("/");
+          }}
+        >
+          Back Home
+        </Button>
+        <Popconfirm
+          placement="topLeft"
+          title="R u sure?"
+          onConfirm={() => {
+            joinTable(tId);
+            navigate(`/${tId}`);
+          }}
+          okText="OK"
+          cancelText="Cancel"
+        >
+          <Button
+            style={{ backgroundColor: "var(--primary-color)" }}
+            type="primary"
+          >
+            Join Table
+          </Button>
+        </Popconfirm>
+      </div>
       <Modal
         title={<h3>Transfer log</h3>}
         // style={{ top: 20 }}
