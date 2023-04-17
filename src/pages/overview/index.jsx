@@ -3,17 +3,22 @@ import {
   Button,
   Tag,
   Table,
-  Typography,
   List,
   Modal,
   notification,
   Popconfirm,
+  Space,
+  QRCode,
 } from "antd";
-import Title from "antd/es/typography/Title";
-import { EyeOutlined } from "@ant-design/icons";
+
+import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 import { getTableInfo, getUserInfo } from "../../hooks/useHttp";
 import { useNavigate } from "react-router-dom";
 import { baseUrl } from "../dasboard";
+import { useIntl } from "react-intl";
+const revert = (data) => {
+  data.sort(() => -1);
+};
 
 function OverView() {
   const navigate = useNavigate();
@@ -24,6 +29,8 @@ function OverView() {
   const [gameLogData, setGameLogData] = useState("");
   const [logData, setLogData] = useState("");
   const [logModalOpen, setLogModalOpen] = useState(false);
+  const { formatMessage } = useIntl();
+  const [logModalTitle, setLogModalTitle] = useState();
 
   useEffect(() => {
     if (!tId || !currentUser) {
@@ -90,7 +97,7 @@ function OverView() {
         });
 
         const gameLog = convertedHistory.map((item, i) => {
-          return ` ${i + 1}: ${item.fromPlayerId} transferred ${
+          return ` ${i + 1}: ${item.fromPlayerId} đã chuyển cho ${
             item.toPlayerId
           } ${item.amount}`;
         });
@@ -105,10 +112,13 @@ function OverView() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getPlayerLogData = (record) => {
+  const getPlayerLogData = (record, type) => {
     if (historyData) {
       const playerHistory = historyData?.filter((item, i) => {
         return item.fromPlayerId === record.id;
+      });
+      const incomingAmount = historyData?.filter((item, i) => {
+        return item.toPlayerId === record.id;
       });
 
       const chickenHistory = historyData?.filter((item) => {
@@ -116,32 +126,52 @@ function OverView() {
       });
 
       const chickenLog = chickenHistory.map((item, i) => {
-        return `${i + 1}: ${item.fromPlayerId} transferred ${item.toPlayerId} ${
-          item.amount
-        } `;
+        return `${i + 1}: ${item.toPlayerId.toUpperCase()} ${formatMessage({
+          id: "message.transferred",
+        })} ${item.fromPlayerId.toUpperCase()} ${item.amount} `;
       });
 
       const playerLog = playerHistory.map((item, i) => {
-        return `${i + 1}: ${item.fromPlayerId} transferred ${item.toPlayerId} ${
-          item.amount
-        } `;
+        return `${i + 1}: ${item.fromPlayerId.toUpperCase()} ${formatMessage({
+          id: "message.transferred",
+        })} ${item.toPlayerId.toUpperCase()} ${item.amount} `;
       });
+
+      const incomingLog = incomingAmount.map((item, i) => {
+        return `${i + 1}: ${item.toPlayerId.toUpperCase()} ${formatMessage({
+          id: "message.received",
+        })} ${item.amount} ${formatMessage({
+          id: "message.from",
+        })} ${item.fromPlayerId.toUpperCase()}    `;
+      });
+
       if (record.id === "Chicken") {
+        revert(chickenLog);
         setLogData(chickenLog);
-      } else {
+      }
+      if (type === "out") {
+        revert(playerLog);
         setLogData(playerLog);
+      }
+      if (type === "in") {
+        if (incomingLog.length === 0) {
+          setLogData(["Làm mà ăn đi bạn ơi =)))"]);
+        } else {
+          revert(incomingLog);
+          setLogData(incomingLog);
+        }
       }
     }
   };
 
   const columns = [
     {
-      title: "Player name",
+      title: formatMessage({ id: "dashboard.player" }),
       dataIndex: "id",
       key: "id",
     },
     {
-      title: "Amount",
+      title: formatMessage({ id: "dashboard.amount" }),
       dataIndex: "chips",
       key: "chips",
       render: (value) => {
@@ -158,41 +188,57 @@ function OverView() {
       },
     },
     {
-      title: "Log",
+      title: formatMessage({ id: "dashboard.log" }),
       dataIndex: "log",
+      align: "center",
       key: "log",
       render: (_, record) => {
         return (
-          <Button
-            // type="primary"
-            icon={<EyeOutlined style={{ color: "orange" }} />}
-            size="large"
-            onClick={() => {
-              setLogModalOpen(true);
-              getPlayerLogData(record);
-            }}
-          ></Button>
+          <Space>
+            <Button
+              // type="primary"
+              icon={<ArrowUpOutlined style={{ color: "red" }} />}
+              // size="large"
+              onClick={() => {
+                setLogModalOpen(true);
+                setLogModalTitle(
+                  ` ${formatMessage({
+                    id: "modalTitle.outComingLog",
+                  })} ${record.id.toUpperCase()}`
+                );
+                getPlayerLogData(record, "out");
+              }}
+            ></Button>
+            <Button
+              // type="primary"
+              icon={<ArrowDownOutlined style={{ color: "green" }} />}
+              // size="large"
+              onClick={() => {
+                setLogModalOpen(true);
+                setLogModalTitle(
+                  `${formatMessage({
+                    id: "modalTitle.incomingLog",
+                  })} ${record.id.toUpperCase()}`
+                );
+                getPlayerLogData(record, "in");
+              }}
+            ></Button>
+          </Space>
         );
       },
     },
   ];
 
   return (
-    <div style={{ padding: "50px 16px", textAlign: "center" }}>
-      <Title level={3} style={{ alignSelf: "center" }}>
-        Table Overview
-      </Title>
-      <Title level={4} style={{ alignSelf: "center" }}>
-        Table ID:
-        <Typography.Paragraph copyable>{tId}</Typography.Paragraph>
-      </Title>
-
+    <div style={{ padding: "0 16px", textAlign: "center" }}>
+      <QRCode value={`biabip.cc/${tId}`} style={{ margin: "16px auto" }} />
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           maxWidth: "70%",
           margin: "0 auto",
+          marginBottom: 20,
         }}
       >
         <Button
@@ -200,7 +246,7 @@ function OverView() {
           onClick={fetchTableData}
           style={{ backgroundColor: "var(--primary-color)" }}
         >
-          Reload
+          {formatMessage({ id: "button.reload" })}
         </Button>
 
         {/* open modal */}
@@ -212,7 +258,7 @@ function OverView() {
           }}
           style={{ backgroundColor: "var(--primary-color)" }}
         >
-          Show all log
+          {formatMessage({ id: "button.allLog" })}
         </Button>
       </div>
 
@@ -223,6 +269,7 @@ function OverView() {
           maxWidth: "70%",
           margin: "0 auto",
           justifyContent: "space-between",
+          marginBottom: 20,
         }}
       >
         <Button
@@ -232,11 +279,11 @@ function OverView() {
             navigate("/");
           }}
         >
-          Back Home
+          {formatMessage({ id: "button.backHome" })}
         </Button>
         <Popconfirm
           placement="topLeft"
-          title="R u sure?"
+          title="Bạn chắc chứ?"
           onConfirm={() => {
             joinTable(tId);
             navigate(`/${tId}`);
@@ -248,12 +295,13 @@ function OverView() {
             style={{ backgroundColor: "var(--primary-color)" }}
             type="primary"
           >
-            Join Table
+            {formatMessage({ id: "button.joinTable" })}
           </Button>
         </Popconfirm>
       </div>
+      {/*---------------------- Modal transfer log------------------ */}
       <Modal
-        title={<h3>Transfer log</h3>}
+        title={logModalTitle}
         // style={{ top: 20 }}
         centered
         onOk={() => setLogModalOpen(false)}

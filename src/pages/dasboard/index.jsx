@@ -6,15 +6,15 @@ import {
   Col,
   InputNumber,
   Table,
-  Typography,
   notification,
   Modal,
   List,
   Popconfirm,
   Space,
   Input,
+  QRCode,
 } from "antd";
-import Title from "antd/es/typography/Title";
+
 import {
   DollarOutlined,
   ArrowUpOutlined,
@@ -27,6 +27,7 @@ import {
   saveUserInfo,
 } from "../../hooks/useHttp";
 import { useNavigate, useParams } from "react-router-dom";
+import {  useIntl } from "react-intl";
 
 export const baseUrl = "https://api.biabip.cc";
 
@@ -50,8 +51,8 @@ function DashBoard() {
   const [logModalTitle, setLogModalTitle] = useState("");
   const { id } = useParams();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
   const [userName, setUserName] = useState("");
+  const { formatMessage } = useIntl();
 
   // saveTableInfo(id);
   useEffect(() => {
@@ -147,11 +148,9 @@ function DashBoard() {
         });
 
         const gameLog = convertedHistory.map((item, i) => {
-          return ` ${
-            i + 1
-          }: ${item.fromPlayerId.toUpperCase()} transferred ${item.toPlayerId.toUpperCase()} ${
-            item.amount
-          }`;
+          return ` ${i + 1}: ${item.fromPlayerId.toUpperCase()} ${formatMessage(
+            { id: "message.transferred" }
+          )} ${item.toPlayerId.toUpperCase()} ${item.amount}`;
         });
         revert(gameLog);
         setGameLogData(gameLog);
@@ -178,25 +177,23 @@ function DashBoard() {
       });
 
       const chickenLog = chickenHistory.map((item, i) => {
-        return `${
-          i + 1
-        }: ${item.fromPlayerId.toUpperCase()} transferred ${item.toPlayerId.toUpperCase()} ${
-          item.amount
-        } `;
+        return `${i + 1}: ${item.toPlayerId.toUpperCase()} ${formatMessage({
+          id: "message.transferred",
+        })} ${item.fromPlayerId.toUpperCase()} ${item.amount} `;
       });
 
       const playerLog = playerHistory.map((item, i) => {
-        return `${
-          i + 1
-        }: ${item.fromPlayerId.toUpperCase()} transferred ${item.toPlayerId.toUpperCase()} ${
-          item.amount
-        } `;
+        return `${i + 1}: ${item.fromPlayerId.toUpperCase()} ${formatMessage({
+          id: "message.transferred",
+        })} ${item.toPlayerId.toUpperCase()} ${item.amount} `;
       });
 
       const incomingLog = incomingAmount.map((item, i) => {
-        return `${i + 1}: ${item.toPlayerId.toUpperCase()} received ${
-          item.amount
-        } from ${item.fromPlayerId.toUpperCase()}    `;
+        return `${i + 1}: ${item.toPlayerId.toUpperCase()} ${formatMessage({
+          id: "message.received",
+        })} ${item.amount} ${formatMessage({
+          id: "message.from",
+        })} ${item.fromPlayerId.toUpperCase()}    `;
       });
 
       if (record.id === "Chicken") {
@@ -220,12 +217,12 @@ function DashBoard() {
 
   const columns = [
     {
-      title: "Player name",
+      title: formatMessage({ id: "dashboard.player" }),
       dataIndex: "id",
       key: "id",
     },
     {
-      title: "Amount",
+      title: formatMessage({ id: "dashboard.amount" }),
       dataIndex: "chips",
       key: "chips",
       render: (value) => {
@@ -238,7 +235,6 @@ function DashBoard() {
                 textAlign: "center",
                 wordWrap: "break-word",
                 width: "50px",
-
                 paddingTop: "0px",
               }}
             >
@@ -249,7 +245,7 @@ function DashBoard() {
       },
     },
     {
-      title: "Pay",
+      title: formatMessage({ id: "dashboard.pay" }),
       dataIndex: "pay",
 
       key: "pay",
@@ -268,7 +264,7 @@ function DashBoard() {
       },
     },
     {
-      title: "Log",
+      title: formatMessage({ id: "dashboard.log" }),
       dataIndex: "log",
       align: "center",
       key: "log",
@@ -281,7 +277,11 @@ function DashBoard() {
               // size="large"
               onClick={() => {
                 setLogModalOpen(true);
-                setLogModalTitle(`${record.id.toUpperCase()} outcoming log`);
+                setLogModalTitle(
+                  ` ${formatMessage({
+                    id: "modalTitle.outComingLog",
+                  })} ${record.id.toUpperCase()}`
+                );
                 getPlayerLogData(record, "out");
               }}
             ></Button>
@@ -291,7 +291,11 @@ function DashBoard() {
               // size="large"
               onClick={() => {
                 setLogModalOpen(true);
-                setLogModalTitle(`${record.id.toUpperCase()} incoming log`);
+                setLogModalTitle(
+                  `${formatMessage({
+                    id: "modalTitle.incomingLog",
+                  })} ${record.id.toUpperCase()}`
+                );
                 getPlayerLogData(record, "in");
               }}
             ></Button>
@@ -314,7 +318,7 @@ function DashBoard() {
               size="large"
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
-              placeholder="Enter your name"
+              placeholder={formatMessage({ id: "placeHolder.enterName" })}
             />
           </Col>
           <div
@@ -327,7 +331,7 @@ function DashBoard() {
           >
             <Popconfirm
               placement="topLeft"
-              title="R u sure?"
+              title="Bạn chắc chứ"
               onConfirm={() => {
                 navigate("/");
               }}
@@ -338,7 +342,7 @@ function DashBoard() {
                 style={{ backgroundColor: "var(--primary-color)" }}
                 type="primary"
               >
-                Back Home
+                {formatMessage({ id: "button.leave" })}
               </Button>
             </Popconfirm>
             <Button
@@ -347,7 +351,7 @@ function DashBoard() {
               style={{ backgroundColor: "var(--primary-color)" }}
               disabled={userName ? false : true}
             >
-              Join table
+              {formatMessage({ id: "button.joinTable" })}
             </Button>
             <Button
               type="primary"
@@ -359,33 +363,26 @@ function DashBoard() {
               style={{ backgroundColor: "var(--primary-color)" }}
               disabled={userName ? false : true}
             >
-              Watch
+              {formatMessage({ id: "button.watch" })}
             </Button>
           </div>
         </>
       )}
       {isLoggedIn && (
         <>
-          <Title level={3} style={{ textAlign: "center" }}>
-            SCOREBOARD
-          </Title>
-          <Typography.Paragraph
-            copyable
-            style={{ textAlign: "center", marginBottom: "30px" }}
-          >
-            {id}
-          </Typography.Paragraph>
+          <QRCode value={`biabip.cc/${id}`} style={{ margin: "16px auto" }} />
+
           <Table dataSource={tableData} columns={columns} size="small"></Table>
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
-              marginBottom: "20px",
+              marginBottom: 20,
             }}
           >
             <Popconfirm
               placement="topLeft"
-              title="R u sure?"
+              title={formatMessage({ id: "message.confirm" })}
               onConfirm={() => {
                 navigate("/");
               }}
@@ -396,7 +393,7 @@ function DashBoard() {
                 style={{ backgroundColor: "var(--primary-color)" }}
                 type="primary"
               >
-                Leave the table
+                {formatMessage({ id: "button.leave" })}
               </Button>
             </Popconfirm>
             <Button
@@ -404,24 +401,28 @@ function DashBoard() {
               onClick={fetchTableData}
               style={{ backgroundColor: "var(--primary-color)" }}
             >
-              Reload
+              {formatMessage({ id: "button.reload" })}
             </Button>
             <Button
               type="primary"
               onClick={() => {
                 setLogModalOpen(true);
                 setLogData(gameLogData);
-                setLogModalTitle(`Outgoing log`);
+                setLogModalTitle(
+                  formatMessage({ id: "modalTitle.outGoingLog" })
+                );
               }}
               style={{ backgroundColor: "var(--primary-color)" }}
               // style={{ width: "40%" }}
             >
-              Show all log
+              {formatMessage({ id: "button.allLog" })}
             </Button>
           </div>
-          {/* -------------------------------------modal---------------- */}
+          {/* ------------------------------------- Transfer modal---------------- */}
           <Modal
-            title={`Transfer to ${modalData.id}`}
+            title={`${formatMessage({ id: "message.transferTo" })} ${
+              modalData.id
+            }`}
             // style={{ top: 20 }}
             centered
             confirmLoading={isLoading}
@@ -452,7 +453,9 @@ function DashBoard() {
                   });
                 }
                 if (res.status === 200) {
-                  const message = `Đã chuyển ${amount} cho ${modalData?.id}`;
+                  const message = `${formatMessage({
+                    id: "message.transferred",
+                  })} ${modalData?.id.toUpperCase()} ${amount}  `;
 
                   notification.success({
                     message: message,
@@ -476,7 +479,7 @@ function DashBoard() {
             <Row>
               <Col span={12} offset={6}>
                 <InputNumber
-                  placeholder="Enter the loss amount"
+                  placeholder={formatMessage({ id: "placeHolder.lossAmount" })}
                   style={{ marginBottom: "20px" }}
                   size="large"
                   value={amount}
@@ -488,7 +491,7 @@ function DashBoard() {
               </Col>
             </Row>
           </Modal>
-          {/* Modal transfer log */}
+          {/*---------------------- Modal transfer log------------------ */}
           <Modal
             title={logModalTitle}
             // style={{ top: 20 }}

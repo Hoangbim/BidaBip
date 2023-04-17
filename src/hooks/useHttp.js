@@ -67,7 +67,6 @@ export const saveUserInfo = (data) => {
 
 export const getUserInfo = () => {
   const data = window.localStorage.getItem("user_info");
-
   return data ? JSON.parse(data) : null;
 };
 export const saveTableInfo = (data) => {
@@ -76,7 +75,15 @@ export const saveTableInfo = (data) => {
 
 export const getTableInfo = () => {
   const data = window.localStorage.getItem("TABLEID");
+  return data ? JSON.parse(data) : null;
+};
 
+export const saveLocale = (data) => {
+  return window.localStorage.setItem("LOCALE", JSON.stringify(data));
+};
+
+export const getLocale = () => {
+  const data = window.localStorage.getItem("LOCALE");
   return data ? JSON.parse(data) : null;
 };
 

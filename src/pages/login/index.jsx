@@ -2,18 +2,21 @@ import { Button, Col, Input, Row, notification } from "antd";
 import React, { useEffect, useState } from "react";
 import { baseUrl } from "../dasboard";
 import { useNavigate } from "react-router-dom";
+
 import {
   getUserInfo,
   handleError,
   saveTableInfo,
   saveUserInfo,
 } from "../../hooks/useHttp";
+import { useIntl } from "react-intl";
 
 function LoginPage() {
   const [userName, setUserName] = useState("");
   const [inputTableId, setInputTableId] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+  const { formatMessage } = useIntl();
 
   useEffect(() => {
     const savedUserName = getUserInfo();
@@ -88,7 +91,7 @@ function LoginPage() {
                 size="large"
                 value={userName}
                 onChange={onUserNameChange}
-                placeholder="Enter your name"
+                placeholder={formatMessage({ id: "placeHolder.enterName" })}
               />
             </Col>
             <Col span={24} style={{ marginBottom: 16 }}>
@@ -99,7 +102,7 @@ function LoginPage() {
                 disabled={userName ? false : true}
                 style={{ backgroundColor: "var(--primary-color)" }}
               >
-                LOG IN
+                {formatMessage({ id: "title.login" })}
               </Button>
             </Col>
           </>
@@ -110,23 +113,23 @@ function LoginPage() {
             <div
               style={{
                 display: "flex",
-                width: "60%",
+                width: "70%",
                 margin: "0 auto",
                 justifyContent: "center",
               }}
             >
               <p style={{ fontWeight: "bolder" }}>
-                Welcome {userName}!&nbsp;&nbsp;
+                {formatMessage({ id: "title.welcome" })} {userName}!&nbsp;&nbsp;
               </p>
               <p
                 onClick={logoutHandler}
                 style={{ color: "var(--primary-color)", scale: "0.7" }}
               >
-                (logout)
+                ({formatMessage({ id: "title.logout" })})
               </p>
             </div>
             <Col span={24} style={{ marginBottom: 16 }}>
-              <p>Now you can</p>
+              <p>{formatMessage({ id: "message.nowYouCan" })}</p>
             </Col>
             <Col span={24} style={{ marginBottom: 16 }}>
               <Button
@@ -134,17 +137,17 @@ function LoginPage() {
                 onClick={onCreateTable}
                 style={{ backgroundColor: "var(--primary-color)" }}
               >
-                CREATE A TABLE
+                {formatMessage({ id: "button.create" })}
               </Button>
             </Col>
             <Col span={24} style={{ marginBottom: 16 }}>
-              <p>OR</p>
+              <p>{formatMessage({ id: "message.or" })}</p>
             </Col>
 
             <Col span={24} style={{ marginBottom: 16 }}>
               <Input
                 size="large"
-                placeholder="Enter table ID"
+                placeholder={formatMessage({ id: "placeHolder.enterTableId" })}
                 value={inputTableId}
                 onChange={(e) => {
                   setInputTableId(e.target.value);
@@ -160,7 +163,7 @@ function LoginPage() {
                 style={{ backgroundColor: "var(--primary-color)" }}
                 disabled={inputTableId ? false : true}
               >
-                JOIN TABLE
+                {formatMessage({ id: "button.joinTable" })}
               </Button>
             </Col>
             <Col span={12}>
@@ -191,7 +194,7 @@ function LoginPage() {
                 style={{ backgroundColor: "var(--primary-color)" }}
                 disabled={inputTableId ? false : true}
               >
-                WATCH
+                {formatMessage({ id: "button.watch" })}
               </Button>
             </Col>
           </>

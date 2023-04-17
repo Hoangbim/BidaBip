@@ -1,46 +1,33 @@
-// import {
-//   RouterProvider,
-//   createBrowserRouter,
-//   redirect,
-// } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 
 import "./App.css";
 import Layout from "./layout/Layout";
-// import ErrorPage from "./pages/ErrorPage";
+
 import DashBoard from "./pages/dasboard";
 import LoginPage from "./pages/login";
 import OverView from "./pages/overview";
+import { IntlProvider } from "react-intl";
+import localeMessages from "./locale/messages";
+import { useSelector } from "react-redux";
 
 function App() {
-  // const route = createBrowserRouter([
-  //   {
-  //     // path: "/",
-  //     element: <Layout />,
-  //     errorElement: <ErrorPage />,
-  //     children: [
-  //       {
-  //         path: "/",
-  //         element: <LoginPage />,
-  //       },
-  //       {
-  //         path: "/:id",
-  //         element: <DashBoard />,
-  //       },
-  //     ],
-  //   },
-  // ]);
-
-  // return <RouterProvider router={route} />;
+  const locale = useSelector((state) => state.users.locale);
+  console.log("locale", locale);
   return (
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<LoginPage />} />
-        <Route path=":id" element={<DashBoard />} />
-        <Route path="*" element={<div>not found</div>} />
-      </Route>
-      <Route path="/over-view/:tableId" element={<OverView />} />
-    </Routes>
+    <IntlProvider
+      messages={localeMessages[locale]}
+      locale="en"
+      defaultLocale="en"
+    >
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<LoginPage />} />
+          <Route path=":id" element={<DashBoard />} />
+          <Route path="*" element={<div>not found</div>} />
+          <Route path="over-view/:tableId" element={<OverView />} />
+        </Route>
+      </Routes>
+    </IntlProvider>
   );
 }
 
