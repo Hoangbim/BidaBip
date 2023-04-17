@@ -12,7 +12,6 @@ import { useSelector } from "react-redux";
 
 function App() {
   const locale = useSelector((state) => state.users.locale);
-  console.log("locale", locale);
   return (
     <IntlProvider
       messages={localeMessages[locale]}

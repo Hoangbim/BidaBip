@@ -16,8 +16,12 @@ import { getTableInfo, getUserInfo } from "../../hooks/useHttp";
 import { useNavigate } from "react-router-dom";
 import { baseUrl } from "../dasboard";
 import { useIntl } from "react-intl";
+import dayjs from "dayjs";
 const revert = (data) => {
   data.sort(() => -1);
+};
+const timeConvert = (timestamp) => {
+  return dayjs(new Date(timestamp)).format("HH:mm:ss, DD/MM");
 };
 
 function OverView() {
@@ -97,9 +101,11 @@ function OverView() {
         });
 
         const gameLog = convertedHistory.map((item, i) => {
-          return ` ${i + 1}: ${item.fromPlayerId} đã chuyển cho ${
-            item.toPlayerId
-          } ${item.amount}`;
+          return ` ${i + 1}: ${item.fromPlayerId} ${formatMessage({
+            id: "message.transferred",
+          })} ${item.toPlayerId} ${item.amount} (${
+            item.timestamp ? timeConvert(item?.timestamp) : ""
+          })`;
         });
 
         setGameLogData(gameLog);
@@ -128,13 +134,17 @@ function OverView() {
       const chickenLog = chickenHistory.map((item, i) => {
         return `${i + 1}: ${item.toPlayerId.toUpperCase()} ${formatMessage({
           id: "message.transferred",
-        })} ${item.fromPlayerId.toUpperCase()} ${item.amount} `;
+        })} ${item.fromPlayerId.toUpperCase()} ${item.amount} (${
+          item.timestamp ? timeConvert(item?.timestamp) : ""
+        })`;
       });
 
       const playerLog = playerHistory.map((item, i) => {
         return `${i + 1}: ${item.fromPlayerId.toUpperCase()} ${formatMessage({
           id: "message.transferred",
-        })} ${item.toPlayerId.toUpperCase()} ${item.amount} `;
+        })} ${item.toPlayerId.toUpperCase()} ${item.amount} (${
+          item.timestamp ? timeConvert(item?.timestamp) : ""
+        })`;
       });
 
       const incomingLog = incomingAmount.map((item, i) => {
@@ -142,7 +152,9 @@ function OverView() {
           id: "message.received",
         })} ${item.amount} ${formatMessage({
           id: "message.from",
-        })} ${item.fromPlayerId.toUpperCase()}    `;
+        })} ${item.fromPlayerId.toUpperCase()} (${
+          item.timestamp ? timeConvert(item?.timestamp) : ""
+        })`;
       });
 
       if (record.id === "Chicken") {
