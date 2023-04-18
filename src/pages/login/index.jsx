@@ -195,7 +195,7 @@ function LoginPage() {
                   onError={handlerScanCodeError}
                   onScan={handlerScanWebcam}
                   legacy="true"
-                  facingMode="rear"
+                  facingMode="user"
                 />
               </div>
             )}
