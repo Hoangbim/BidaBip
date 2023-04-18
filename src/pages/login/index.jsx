@@ -11,12 +11,42 @@ import {
 } from "../../hooks/useHttp";
 import { useIntl } from "react-intl";
 
+import QrReader from "react-qr-scanner";
+
 function LoginPage() {
   const [userName, setUserName] = useState("");
   const [inputTableId, setInputTableId] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
   const { formatMessage } = useIntl();
+  const [openQr, setOpenQr] = useState(false);
+  const [isHttps, setIsHttps] = useState(false);
+
+  //test scanner area react-qr-scanner////
+  useEffect(() => {
+    const currentLocation = window.location.href;
+
+    setIsHttps(currentLocation.split(":")[0] === "https" ? true : false);
+  }, []);
+
+  const delay = 300;
+
+  const previewStyle = { height: 240, width: 320 };
+
+  const handlerScanWebcam = (result) => {
+    if (result) {
+      setOpenQr(false);
+      const id = result?.text.split("/")[1];
+
+      navigate(`${id}`);
+    }
+  };
+
+  const handlerScanCodeError = (err) => {
+    console.log("err", err);
+    navigate("/");
+  };
+  ///////////////end test area//////////////////
 
   useEffect(() => {
     const savedUserName = getUserInfo();
@@ -135,11 +165,42 @@ function LoginPage() {
               <Button
                 type="primary"
                 onClick={onCreateTable}
-                style={{ backgroundColor: "var(--primary-color)" }}
+                style={{
+                  backgroundColor: "var(--primary-color)",
+                  translate: "-10px 0",
+                }}
               >
                 {formatMessage({ id: "button.create" })}
               </Button>
+              <Button
+                type="primary"
+                onClick={() => setOpenQr(openQr === true ? false : true)}
+                style={{
+                  backgroundColor: "var(--primary-color)",
+                  translate: "10px 0",
+                }}
+                disabled={!isHttps}
+              >
+                {formatMessage({ id: "button.scanQrCode" })}
+              </Button>
             </Col>
+
+            {/* ------------------------------ qr scanner --------------------- */}
+
+            {openQr && (
+              <div style={{ width: "80%", margin: "0 auto" }}>
+                <QrReader
+                  delay={delay}
+                  style={previewStyle}
+                  onError={handlerScanCodeError}
+                  onScan={handlerScanWebcam}
+                  legacy="true"
+                />
+              </div>
+            )}
+
+            {/* ------------------------------ qr scanner-------------------- */}
+
             <Col span={24} style={{ marginBottom: 16 }}>
               <p>{formatMessage({ id: "message.or" })}</p>
             </Col>

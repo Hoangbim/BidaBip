@@ -28,6 +28,7 @@ const localeMessages = {
     "message.transferTo": "Transfer to",
     "placeHolder.lossAmount": "Enter loss amount",
     "button.backHome": "Back home",
+    "button.scanQrCode": "Scan QR code",
   },
 
   vi_VN: {
@@ -59,6 +60,7 @@ const localeMessages = {
     "message.transferTo": "Chuyển cho",
     "placeHolder.lossAmount": "Nhập số tiền chuẩn bị mất",
     "button.backHome": "Về trang chủ",
+    "button.scanQrCode": "Quét mã QR",
   },
 };
 export default localeMessages;
