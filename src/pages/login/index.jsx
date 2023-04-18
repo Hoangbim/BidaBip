@@ -37,7 +37,6 @@ function LoginPage() {
     if (result) {
       setOpenQr(false);
       const id = result?.text.split("/")[1];
-
       navigate(`${id}`);
     }
   };
@@ -194,8 +193,9 @@ function LoginPage() {
                   style={previewStyle}
                   onError={handlerScanCodeError}
                   onScan={handlerScanWebcam}
-                  legacy="true"
-                  facingMode="user"
+                  constraints={{
+                    facingMode: { exact: "environment" },
+                  }}
                 />
               </div>
             )}
