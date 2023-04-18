@@ -193,9 +193,6 @@ function LoginPage() {
                   style={previewStyle}
                   onError={handlerScanCodeError}
                   onScan={handlerScanWebcam}
-                  constraints={{
-                    facingMode: { exact: "environment" },
-                  }}
                 />
               </div>
             )}
